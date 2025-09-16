@@ -9,62 +9,72 @@
     --bg:#0b0b0c; --fg:#e8e8e8; --sub:#9aa0a6; --cyan:#00e5ff; --dc:#005b66;
     --mag:#ff8de3; --green:#7CFC00; --yellow:#ffe066; --card:#151517; --border:#2a2a2e;
   }
+
+  /* Base type scales down on small screens via clamp */
   html,body{
     height:100%; margin:0; background:var(--bg); color:var(--fg);
-    font:16px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font: clamp(12px, 2.9vw, 16px) / 1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
     overflow-x:hidden;
   }
-  .term{ max-width:680px; margin:0 auto; padding:20px }
+
+  .term{ max-width:640px; margin:0 auto; padding:18px }
   .bar{ color:var(--cyan) }
   .sep{ color:var(--dc) }
-  .label{ color:var(--mag); display:inline-block; width:16ch }
+
+  /* Labels tightened ~15% */
+  .label{ color:var(--mag); display:inline-block; width:14ch }
   .mag{ color:var(--mag) }
   .yellow{ color:var(--yellow) }
   .green{ color:var(--green) }
   .sub{ color:var(--sub) }
-  .mt{ margin-top:12px }
-  .btns{ margin-top:18px; display:flex; gap:10px; flex-wrap:wrap }
+  .mt{ margin-top:10px }
+
+  .btns{ margin-top:14px; display:flex; gap:8px; flex-wrap:wrap }
   button{
     background:var(--card); color:#fff; border:1px solid var(--border);
-    padding:12px 14px; border-radius:10px; font:inherit; cursor:pointer; min-width:110px
+    padding:9px 11px; border-radius:9px; font:inherit; cursor:pointer; min-width:96px
   }
   button:active{ transform:translateY(1px) }
+
   .line{ white-space:pre-wrap; word-break:break-word }
-  .center{ display:flex; align-items:center; justify-content:center; min-height:140px }
-  .cat{ white-space:pre; line-height:1.1 }
+  .center{ display:flex; align-items:center; justify-content:center; min-height:120px }
+  .cat{ white-space:pre; line-height:1.05 }
+
   .spin{
     display:inline-block; will-change:transform; transform-origin:center center;
     -webkit-animation:spin 1.2s linear infinite; animation:spin 1.2s linear infinite;
   }
   .shake{
-    -webkit-animation:shake .45s cubic-bezier(.36,.07,.19,.97) both;
-            animation:shake .45s cubic-bezier(.36,.07,.19,.97) both;
+    -webkit-animation:shake .42s cubic-bezier(.36,.07,.19,.97) both;
+            animation:shake .42s cubic-bezier(.36,.07,.19,.97) both;
   }
-  @-webkit-keyframes spin{ from{ -webkit-transform:rotate(0) } to{ -webkit-transform:rotate(360deg) } }
-  @keyframes spin{ from{ transform:rotate(0) } to{ transform:rotate(360deg) } }
+  @-webkit-keyframes spin{ from{ -webkit-transform:rotate(0)} to{ -webkit-transform:rotate(360deg)} }
+  @keyframes spin{ from{ transform:rotate(0)} to{ transform:rotate(360deg)} }
   @-webkit-keyframes shake{
     10%,90%{ -webkit-transform:translate3d(-1px,0,0) }
     20%,80%{ -webkit-transform:translate3d(2px,0,0) }
-    30%,50%,70%{ -webkit-transform:translate3d(-4px,0,0) }
-    40%,60%{ -webkit-transform:translate3d(4px,0,0) }
+    30%,50%,70%{ -webkit-transform:translate3d(-3px,0,0) }
+    40%,60%{ -webkit-transform:translate3d(3px,0,0) }
   }
   @keyframes shake{
     10%,90%{ transform:translate3d(-1px,0,0) }
     20%,80%{ transform:translate3d(2px,0,0) }
-    30%,50%,70%{ transform:translate3d(-4px,0,0) }
-    40%,60%{ transform:translate3d(4px,0,0) }
+    30%,50%,70%{ transform:translate3d(-3px,0,0) }
+    40%,60%{ transform:translate3d(3px,0,0) }
   }
-  /* Mobile tweaks */
+
+  /* Mobile tightening (extra 10–20% shrink + wrapping) */
   @media (max-width:480px){
-    html,body{ font-size:15px }
-    .term{ padding:14px }
-    .label{ width:auto; display:block; margin-bottom:2px } /* value wraps to next line */
+    .term{ max-width:100%; padding:14px }
+    .label{ width:auto; display:block; margin-bottom:1px } /* value on its own line */
     .btns button{ flex:1 }
-    .line.green{ white-space:normal; line-height:1.2 }    /* ticker can wrap naturally */
+    .line.green{ white-space:normal; line-height:1.15 }    /* ticker wraps gracefully */
   }
+
   @media (prefers-reduced-motion: reduce){
     .spin,.shake{ -webkit-animation:none; animation:none }
   }
+
   .err{ color:#ff6b6b; white-space:pre-wrap }
 </style>
 </head>
@@ -78,17 +88,17 @@
     <button id="again">Run again</button>
     <button id="share">Share</button>
   </div>
-  <div class="mt sub">Tip: if it looks stale, add <code>?v=2</code> to the URL and refresh.</div>
+  <div class="mt sub">Tip: if it looks cached, add <code>?v=4</code> to the URL and refresh.</div>
 </div>
 
 <script>
 (() => {
-  // ===== personalize defaults (can override via ?n=...&co=...) =====
+  // ===== personalize defaults (override via ?n=...&co=...) =====
   const defaults = { n: "Walter", co: "Life Insurance Co." };
   const qs = new URLSearchParams(location.search);
   const name = qs.get('n')  || defaults.n;
   const co   = qs.get('co') || defaults.co;
-  // =================================================================
+  // =============================================================
 
   const term   = document.getElementById('term');
   const title  = document.getElementById('title');
@@ -101,7 +111,8 @@
   const sleep = ms => new Promise(r=>setTimeout(r,ms));
   const pad = n => (''+n).padStart(2,'0');
   function stamp(){
-    const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    const d=new Date();
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
   function clearScreen(){ screen.innerHTML=''; }
   function line(txt, cls){ const d=document.createElement('div'); d.className='line'+(cls?' '+cls:''); d.textContent=txt; screen.appendChild(d); return d; }
@@ -120,12 +131,12 @@
     const msg=document.createElement('div'); msg.className='line yellow'; msg.textContent='🐱 Spinning up market data...';
     const cat=document.createElement('pre'); cat.className='cat spin'; cat.textContent=catArt;
     box.appendChild(msg); box.appendChild(cat); wrap.appendChild(box); screen.appendChild(wrap);
-    await sleep(1600); clearScreen();
+    await sleep(1400); clearScreen();
   }
 
   function sparkline(){
     const bars=['▁','▂','▃','▄','▅','▆','▇']; let out='';
-    for(let i=0;i<22;i++) out+=bars[(Math.random()*bars.length)|0];
+    for(let i=0;i<20;i++) out+=bars[(Math.random()*bars.length)|0]; /* slightly shorter */
     return out+'  📈';
   }
   const rndInt=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
@@ -159,16 +170,25 @@
     line('', '');
   }
 
+  // ticker with fewer columns + tighter padding on phones
+  function tickerCols(){
+    const w = innerWidth;
+    if (w < 380) return 4;
+    if (w < 430) return 5;
+    if (w < 520) return 6;
+    return 7;
+  }
+
   async function ticker(){
-    // responsive columns: fewer on narrow screens
-    const cols = (innerWidth < 430 ? 4 : innerWidth < 520 ? 5 : 7);
-    const symbols=['$LOVE','❤️BUY','$WALT','💸LUV','$DATE','$COFFEE','$ROI↑','$BETA1.6','$QTRWIN'];
-    for(let i=0;i<28;i++){
+    const cols = tickerCols();
+    const pad = 6; // was 8
+    const symbols=['🔥HOT','❤️BUY','$WALT','💸LUV','$DATE',,'$ROI↑','$QTRWIN'];
+    for(let i=0;i<26;i++){
       let rowTxt=''; for(let j=0;j<cols;j++){
         const s=symbols[(Math.random()*symbols.length)|0];
-        rowTxt += (s+'        ').slice(0,8);
+        rowTxt += (s+' '.repeat(pad)).slice(0,pad+2);
       }
-      line(rowTxt,'green'); await sleep(80);
+      line(rowTxt,'green'); await sleep(70);
     }
     line('', '');
   }
@@ -179,14 +199,14 @@
   again.addEventListener('click', async ()=>{
     term.classList.remove('shake'); void term.offsetWidth; term.classList.add('shake');
     clearScreen();
-    try{ await runOnce(); }catch(e){ const d=document.createElement('div'); d.className='line err'; d.textContent='Error: '+e; screen.appendChild(d); }
+    try{ await runOnce(); }
+    catch(e){ const d=document.createElement('div'); d.className='line err'; d.textContent='Error: '+e; screen.appendChild(d); }
     finally{ term.addEventListener('animationend',()=>term.classList.remove('shake'),{once:true}); window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}); }
   });
 
   // share
   share.addEventListener('click', async ()=>{
-    const url = new URL(location.href);
-    url.searchParams.set('n', name); url.searchParams.set('co', co);
+    const url = new URL(location.href); url.searchParams.set('n', name); url.searchParams.set('co', co);
     try{
       if(navigator.share){ await navigator.share({title:'Projections Terminal', url:url.toString()}); }
       else if(navigator.clipboard){ await navigator.clipboard.writeText(url.toString()); alert('Link copied!'); }
@@ -194,7 +214,6 @@
     }catch(e){ alert('Could not share: '+e); }
   });
 
-  // initial run
   try{ header(); runOnce(); }catch(e){ const d=document.createElement('div'); d.className='line err'; d.textContent='Load error: '+e; screen.appendChild(d); }
 })();
 </script>
