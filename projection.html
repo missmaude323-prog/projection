@@ -18,9 +18,6 @@
   .btns { margin-top:18px; display:flex; gap:10px; flex-wrap:wrap; }
   button { background:#151517; color:#fff; border:1px solid #2a2a2e; padding:8px 12px; border-radius:6px; font:inherit; cursor:pointer; }
   button:active { transform: translateY(1px); }
-  .blink { animation: blink 1s step-end infinite; }
-  @keyframes blink { 50%{ opacity:.2 } }
-  .hidden { display:none; }
   .line { white-space:pre; }
 </style>
 </head>
@@ -34,26 +31,17 @@
     <button id="again">Run again</button>
     <button id="share">Share this</button>
   </div>
-  <div class="mt sub">Tip: Add <code>?n=Walter&co=Life%20Insurance%20Co.</code> to the link for auto-personalization.</div>
 </div>
 
 <script>
 (() => {
-  // ==== personalize defaults here ====
-  const defaultName = "Walter";
-  const defaultCo   = "Life Insurance Co.";
-  // ===================================
-
-  const q = new URLSearchParams(location.search);
-  const name = q.get('n') || defaultName;
-  const co   = q.get('co') || defaultCo;
+  const name = "Walter";
+  const co   = "Life Insurance Co.";
 
   const titleEl = document.getElementById('title');
   const sepEl   = document.getElementById('sep');
   const subjEl  = document.getElementById('subject');
   const screen  = document.getElementById('screen');
-  const btnAgain= document.getElementById('again');
-  const btnShare= document.getElementById('share');
 
   function nowStamp(){
     const d = new Date();
@@ -68,7 +56,6 @@
     subjEl.textContent = `Subject: ${name}`;
   }
 
-  // cats animation (ASCII, paw up/down)
   const catFrames = [
 ` /\\_/\\  
 ( o.o ) 
@@ -80,7 +67,6 @@
 
   function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
   function line(txt, cls){ const d=document.createElement('div'); d.className='line'+(cls? ' '+cls:''); d.textContent = txt; screen.appendChild(d); return d; }
-  function lineHTML(txt, cls){ const d=document.createElement('div'); d.className='line'+(cls? ' '+cls:''); d.innerHTML = txt; screen.appendChild(d); return d; }
   function clearScreen(){ screen.innerHTML=''; }
 
   function sparkline(){
@@ -139,7 +125,7 @@
   }
 
   async function ticker(){
-    const symbols = ['$HOT','❤️BUY','WALT','QTRWIN','💸DATE','$ROI↑'];
+    const symbols = ['$LOVE','❤️BUY','$WALT','💸LUV','$DATE','$COFFEE','$ROI↑','$BETA1.6','$QTRWIN'];
     for(let i=0;i<28;i++){
       const d = document.createElement('div');
       d.className='line green';
@@ -162,20 +148,17 @@
     await ticker();
   }
 
-  btnAgain.addEventListener('click', async ()=>{
+  document.getElementById('again').addEventListener('click', async ()=>{
     clearScreen();
     await runOnce();
     window.scrollTo({top:document.body.scrollHeight, behavior:'smooth'});
   });
 
-  btnShare.addEventListener('click', async ()=>{
-    const url = new URL(location.href);
-    url.searchParams.set('n', name);
-    url.searchParams.set('co', co);
+  document.getElementById('share').addEventListener('click', async ()=>{
     if (navigator.share) {
-      await navigator.share({title:'Bloom-bae Terminal', url: url.toString()});
+      await navigator.share({title:'Bloom-bae Terminal', url: location.href});
     } else {
-      await navigator.clipboard.writeText(url.toString());
+      await navigator.clipboard.writeText(location.href);
       alert('Link copied!');
     }
   });
