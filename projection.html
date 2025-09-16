@@ -5,51 +5,69 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Projections Terminal</title>
 <style>
-  :root{
+  :root {
     --bg:#0b0b0c; --fg:#e8e8e8; --sub:#9aa0a6; --cyan:#00e5ff; --dc:#005b66;
     --mag:#ff8de3; --green:#7CFC00; --yellow:#ffe066; --card:#151517; --border:#2a2a2e;
+    --rowAlt:#151517;
   }
-  html,body{
+  html,body {
     margin:0; background:var(--bg); color:var(--fg);
-    font:clamp(12px,2.8vw,16px)/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    font:clamp(12px,2.7vw,16px)/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
     overflow-x:hidden;
   }
-  .term{ max-width:640px; margin:0 auto; padding:18px }
-  .bar{ color:var(--cyan) }
-  .sep{ color:var(--dc) }
-  table.report{ width:100%; border-collapse:collapse; margin:10px 0 }
-  table.report td:first-child{ color:var(--mag); padding-right:0.5em; white-space:nowrap; vertical-align:top }
-  table.report td:last-child{ color:var(--fg); width:100% }
-  .yellow{ color:var(--yellow) }
-  .green{ color:var(--green) }
-  .sub{ color:var(--sub) }
-  .btns{ margin-top:14px; display:flex; gap:8px; flex-wrap:wrap }
-  button{
+  .term { max-width:640px; margin:0 auto; padding:18px }
+  .bar { color:var(--cyan) }
+  .sep { color:var(--dc) }
+
+  table.report {
+    width:100%; border-collapse:collapse; margin:12px 0;
+  }
+  table.report tr:nth-child(even) { background-color: var(--rowAlt); }
+  table.report td {
+    padding:4px 4px;
+    vertical-align:top;
+  }
+  table.report td:first-child {
+    color:var(--mag);
+    white-space:nowrap;
+    padding-right:0.75em;
+  }
+  table.report td:last-child { color:var(--fg) }
+
+  .yellow { color:var(--yellow) }
+  .green { color:var(--green) }
+  .sub { color:var(--sub) }
+
+  .btns { margin-top:14px; display:flex; gap:8px; flex-wrap:wrap }
+  button {
     background:var(--card); color:#fff; border:1px solid var(--border);
     padding:9px 11px; border-radius:9px; font:inherit; cursor:pointer; min-width:96px
   }
-  button:active{ transform:translateY(1px) }
-  .center{ display:flex; align-items:center; justify-content:center; min-height:120px }
-  .cat{ white-space:pre; line-height:1.05 }
-  .spin{ display:inline-block; transform-origin:center center;
-         -webkit-animation:spin 1.2s linear infinite; animation:spin 1.2s linear infinite; }
-  .shake{ -webkit-animation:shake .42s cubic-bezier(.36,.07,.19,.97) both;
-          animation:shake .42s cubic-bezier(.36,.07,.19,.97) both; }
-  @-webkit-keyframes spin{from{-webkit-transform:rotate(0)}to{-webkit-transform:rotate(360deg)}}
-  @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-  @-webkit-keyframes shake{10%,90%{-webkit-transform:translate3d(-1px,0,0)}
+  button:active { transform:translateY(1px) }
+
+  .center { display:flex; align-items:center; justify-content:center; min-height:120px }
+  .cat { white-space:pre; line-height:1.05 }
+  .spin { display:inline-block; transform-origin:center center;
+          -webkit-animation:spin 1.2s linear infinite; animation:spin 1.2s linear infinite; }
+  .shake { -webkit-animation:shake .42s cubic-bezier(.36,.07,.19,.97) both;
+           animation:shake .42s cubic-bezier(.36,.07,.19,.97) both; }
+
+  @-webkit-keyframes spin { from{-webkit-transform:rotate(0)} to{-webkit-transform:rotate(360deg)} }
+  @keyframes spin { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+  @-webkit-keyframes shake {10%,90%{-webkit-transform:translate3d(-1px,0,0)}
     20%,80%{-webkit-transform:translate3d(2px,0,0)}
     30%,50%,70%{-webkit-transform:translate3d(-3px,0,0)}
     40%,60%{-webkit-transform:translate3d(3px,0,0)}}
-  @keyframes shake{10%,90%{transform:translate3d(-1px,0,0)}
+  @keyframes shake {10%,90%{transform:translate3d(-1px,0,0)}
     20%,80%{transform:translate3d(2px,0,0)}
     30%,50%,70%{transform:translate3d(-3px,0,0)}
     40%,60%{transform:translate3d(3px,0,0)}}
-  @media(max-width:480px){
-    html,body{font-size:14px}
-    .term{padding:14px}
-    table.report td{display:block;width:100%}
-    table.report td:first-child{margin-bottom:2px}
+
+  @media (max-width:480px) {
+    html,body { font-size:14px }
+    .term { padding:14px }
+    table.report td { display:block; width:100%; }
+    table.report td:last-child { padding-left:1em; } /* indent values nicely */
   }
 </style>
 </head>
@@ -63,130 +81,133 @@
     <button id="again">Run again</button>
     <button id="share">Share</button>
   </div>
-  <div class="sub" style="margin-top:10px">Tip: add <code>?v=5</code> to URL to bust cache.</div>
+  <div class="sub" style="margin-top:10px">Tip: add <code>?v=6</code> to URL to bust cache.</div>
 </div>
 
 <script>
 (() => {
-  const defaults={n:"Walter",co:"Life Insurance Co."};
-  const qs=new URLSearchParams(location.search);
-  const name=qs.get('n')||defaults.n;
-  const co=qs.get('co')||defaults.co;
+  const defaults = { n: "Walter", co: "Life Insurance Co." };
+  const qs = new URLSearchParams(location.search);
+  const name = qs.get('n') || defaults.n;
+  const co = qs.get('co') || defaults.co;
 
-  const term=document.getElementById('term');
-  const title=document.getElementById('title');
-  const sep=document.getElementById('sep');
-  const subj=document.getElementById('subject');
-  const screen=document.getElementById('screen');
-  const again=document.getElementById('again');
-  const share=document.getElementById('share');
+  const term = document.getElementById('term');
+  const title = document.getElementById('title');
+  const sep = document.getElementById('sep');
+  const subj = document.getElementById('subject');
+  const screen = document.getElementById('screen');
+  const again = document.getElementById('again');
+  const share = document.getElementById('share');
 
-  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-  const pad=n=>(''+n).padStart(2,'0');
-  function header(){
-    const d=new Date();
-    const ttl=`Projections Terminal — ${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-    title.textContent=ttl;
-    sep.textContent='='.repeat(ttl.length);
-    subj.textContent=`Subject: ${name}`;
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const pad = n => ('' + n).padStart(2, '0');
+
+  function header() {
+    const d = new Date();
+    const ttl = `Projections Terminal — ${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    title.textContent = ttl;
+    sep.textContent = '='.repeat(ttl.length);
+    subj.textContent = `Subject: ${name}`;
   }
-  function clearScreen(){screen.innerHTML='';}
 
-  const catArt=` /\\_/\\  \n( o.o ) \n > ^ < `;
-  async function showCats(){
+  function clearScreen() { screen.innerHTML = ''; }
+
+  const catArt = ` /\\_/\\  \n( o.o ) \n > ^ < `;
+  async function showCats() {
     clearScreen();
-    const wrap=document.createElement('div');wrap.className='center';
-    const msg=document.createElement('div');msg.className='yellow';msg.textContent='🐱 Spinning up market data...';
-    const cat=document.createElement('pre');cat.className='cat spin';cat.textContent=catArt;
-    wrap.appendChild(msg);wrap.appendChild(cat);screen.appendChild(wrap);
-    await sleep(1400);clearScreen();
+    const wrap = document.createElement('div'); wrap.className = 'center';
+    const msg = document.createElement('div'); msg.className = 'yellow';
+    msg.textContent = '🐱 Spinning up market data...';
+    const cat = document.createElement('pre'); cat.className = 'cat spin'; cat.textContent = catArt;
+    wrap.appendChild(msg); wrap.appendChild(cat); screen.appendChild(wrap);
+    await sleep(1400); clearScreen();
   }
 
-  const rndInt=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
-  const rndBeta=()=> (rndInt(11,19)/10).toFixed(2);
-  const notes=[
+  function sparkline() {
+    const bars = ['▁','▂','▃','▄','▅','▆','▇']; let out = '';
+    for (let i = 0; i < 20; i++) out += bars[(Math.random() * bars.length) | 0];
+    return out + '  📈';
+  }
+
+  const rndInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+  const rndBeta = () => (rndInt(11, 19) / 10).toFixed(2);
+
+  const notes = [
     'Premium waived for clever banter.',
     'Policy lapse risk rises with poor communication.',
     'Premium discount applied for admission of blushing.',
     'Policyholder owes one coffee date for compliance.'
   ];
 
-  function report(){
-    const beta=rndBeta(), roi=rndInt(120,420), hy=rndInt(60,100);
-    const uw=notes[(Math.random()*notes.length)|0];
-    const table=document.createElement('table');table.className='report';
-    const rows=[
-      ['Role',`AVP, Finance — ${co}`],
-      ['Analyst Rating','STRONG BUY  ❤️'],
-      ['Chemistry Beta',beta],
-      ['Sentiment','Ultra Bullish'],
-      ['Projected ROI',`${roi}% smiles next quarter`],
-      ['HYROX Index',`${hy}/100 — built for endurance`],
-      ['Underwriting Note',uw],
-      ['Insider Tip','Run due diligence: coffee with me.']
+  function report() {
+    const beta = rndBeta(), roi = rndInt(120, 420), hy = rndInt(60, 100);
+    const uw = notes[(Math.random() * notes.length) | 0];
+
+    const table = document.createElement('table'); table.className = 'report';
+    const rows = [
+      ['Role', `AVP, Finance — ${co}`],
+      ['Analyst Rating', 'STRONG BUY  ❤️'],
+      ['Chemistry Beta', beta],
+      ['Sentiment', 'Ultra Bullish'],
+      ['Projected ROI', `${roi}% smiles next quarter`],
+      ['HYROX Index', `${hy}/100 — built for endurance`],
+      ['Underwriting Note', uw],
+      ['Insider Tip', 'Run due diligence: coffee with me.']
     ];
-    rows.forEach(([k,v])=>{
-      const tr=document.createElement('tr');
-      const td1=document.createElement('td');td1.textContent=k;
-      const td2=document.createElement('td');td2.textContent=v;
-      tr.appendChild(td1);tr.appendChild(td2);
+    rows.forEach(([k, v]) => {
+      const tr = document.createElement('tr');
+      const td1 = document.createElement('td'); td1.textContent = k;
+      const td2 = document.createElement('td'); td2.textContent = v;
+      tr.appendChild(td1); tr.appendChild(td2);
       table.appendChild(tr);
     });
     screen.appendChild(table);
-    const pa=document.createElement('div');
-    pa.className='green';
-    pa.textContent='Price Action:  '+sparkline();
+
+    const pa = document.createElement('div'); pa.className = 'green';
+    pa.textContent = 'Price Action:  ' + sparkline();
     screen.appendChild(pa);
-    const msg=document.createElement('div');
-    msg.className='yellow';
-    msg.style.marginTop='8px';
-    msg.textContent=`✨ ${name}, don't keep me waiting — I'm free next week. ✨`;
+
+    const msg = document.createElement('div'); msg.className = 'yellow';
+    msg.style.marginTop = '8px';
+    msg.textContent = `✨ ${name}, don't keep me waiting — I'm free next week. ✨`;
     screen.appendChild(msg);
   }
 
-  function sparkline(){
-    const bars=['▁','▂','▃','▄','▅','▆','▇'];let out='';
-    for(let i=0;i<20;i++) out+=bars[(Math.random()*bars.length)|0];
-    return out+'  📈';
-  }
-
-  async function ticker(){
-    const cols=innerWidth<380?4:innerWidth<430?5:innerWidth<520?6:7;
-    const symbols=['$LOVE','❤️BUY','$WALT','💸LUV','$DATE','$COFFEE','$ROI↑','$BETA1.6','$QTRWIN'];
-    for(let i=0;i<26;i++){
-      let rowTxt='';
-      for(let j=0;j<cols;j++){
-        const s=symbols[(Math.random()*symbols.length)|0];
-        rowTxt += (s+' '.repeat(6)).slice(0,8);
+  async function ticker() {
+    const cols = innerWidth < 380 ? 4 : innerWidth < 430 ? 5 : innerWidth < 520 ? 6 : 7;
+    const symbols = ['🔥HOT', '❤️BUY', '$WALT', '💸LUV', '$DATE', '$COFFEE', '$ROI↑', '$BETA1.6', '$QTRWIN'];
+    for (let i = 0; i < 26; i++) {
+      let rowTxt = '';
+      for (let j = 0; j < cols; j++) {
+        const s = symbols[Math.floor(Math.random() * symbols.length)];
+        rowTxt += s.padEnd(8, ' ');
       }
-      const line=document.createElement('div');
-      line.className='green';
-      line.textContent=rowTxt;
+      const line = document.createElement('div');
+      line.className = 'green';
+      line.textContent = rowTxt;
       screen.appendChild(line);
       await sleep(70);
     }
   }
 
-  async function runOnce(){header();await showCats();report();await ticker();}
+  async function runOnce() { header(); await showCats(); report(); await ticker(); }
 
-  again.addEventListener('click',async()=>{
-    term.classList.remove('shake');void term.offsetWidth;term.classList.add('shake');
-    clearScreen();await runOnce();
-    term.addEventListener('animationend',()=>term.classList.remove('shake'),{once:true});
-    window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+  again.addEventListener('click', async () => {
+    term.classList.remove('shake'); void term.offsetWidth; term.classList.add('shake');
+    clearScreen(); await runOnce();
+    term.addEventListener('animationend', () => term.classList.remove('shake'), { once: true });
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
   });
 
-  share.addEventListener('click',async()=>{
-    const url=new URL(location.href);url.searchParams.set('n',name);url.searchParams.set('co',co);
-    if(navigator.share){await navigator.share({title:'Projections Terminal',url:url.toString()});}
-    else if(navigator.clipboard){await navigator.clipboard.writeText(url.toString());alert('Link copied!');}
-    else{prompt('Copy link:',url.toString());}
+  share.addEventListener('click', async () => {
+    const url = new URL(location.href); url.searchParams.set('n', name); url.searchParams.set('co', co);
+    if (navigator.share) await navigator.share({ title: 'Projections Terminal', url: url.toString() });
+    else if (navigator.clipboard) { await navigator.clipboard.writeText(url.toString()); alert('Link copied!'); }
+    else prompt('Copy link:', url.toString());
   });
 
-  header();runOnce();
+  header(); runOnce();
 })();
 </script>
 </body>
 </html>
-
-
