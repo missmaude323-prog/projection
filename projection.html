@@ -9,139 +9,101 @@
     --bg:#0b0b0c; --fg:#e8e8e8; --sub:#9aa0a6; --cyan:#00e5ff; --dc:#005b66;
     --mag:#ff8de3; --green:#7CFC00; --yellow:#ffe066; --card:#151517; --border:#2a2a2e;
   }
-
-  /* Base type scales down on small screens via clamp */
   html,body{
-    height:100%; margin:0; background:var(--bg); color:var(--fg);
-    font: clamp(12px, 2.9vw, 16px) / 1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    margin:0; background:var(--bg); color:var(--fg);
+    font:clamp(12px,2.8vw,16px)/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
     overflow-x:hidden;
   }
-
   .term{ max-width:640px; margin:0 auto; padding:18px }
   .bar{ color:var(--cyan) }
   .sep{ color:var(--dc) }
-
-  /* Labels tightened ~15% */
-  .label{ color:var(--mag); display:inline-block; width:14ch }
-  .mag{ color:var(--mag) }
+  table.report{ width:100%; border-collapse:collapse; margin:10px 0 }
+  table.report td:first-child{ color:var(--mag); padding-right:0.5em; white-space:nowrap; vertical-align:top }
+  table.report td:last-child{ color:var(--fg); width:100% }
   .yellow{ color:var(--yellow) }
   .green{ color:var(--green) }
   .sub{ color:var(--sub) }
-  .mt{ margin-top:10px }
-
   .btns{ margin-top:14px; display:flex; gap:8px; flex-wrap:wrap }
   button{
     background:var(--card); color:#fff; border:1px solid var(--border);
     padding:9px 11px; border-radius:9px; font:inherit; cursor:pointer; min-width:96px
   }
   button:active{ transform:translateY(1px) }
-
-  .line{ white-space:pre-wrap; word-break:break-word }
   .center{ display:flex; align-items:center; justify-content:center; min-height:120px }
   .cat{ white-space:pre; line-height:1.05 }
-
-  .spin{
-    display:inline-block; will-change:transform; transform-origin:center center;
-    -webkit-animation:spin 1.2s linear infinite; animation:spin 1.2s linear infinite;
+  .spin{ display:inline-block; transform-origin:center center;
+         -webkit-animation:spin 1.2s linear infinite; animation:spin 1.2s linear infinite; }
+  .shake{ -webkit-animation:shake .42s cubic-bezier(.36,.07,.19,.97) both;
+          animation:shake .42s cubic-bezier(.36,.07,.19,.97) both; }
+  @-webkit-keyframes spin{from{-webkit-transform:rotate(0)}to{-webkit-transform:rotate(360deg)}}
+  @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+  @-webkit-keyframes shake{10%,90%{-webkit-transform:translate3d(-1px,0,0)}
+    20%,80%{-webkit-transform:translate3d(2px,0,0)}
+    30%,50%,70%{-webkit-transform:translate3d(-3px,0,0)}
+    40%,60%{-webkit-transform:translate3d(3px,0,0)}}
+  @keyframes shake{10%,90%{transform:translate3d(-1px,0,0)}
+    20%,80%{transform:translate3d(2px,0,0)}
+    30%,50%,70%{transform:translate3d(-3px,0,0)}
+    40%,60%{transform:translate3d(3px,0,0)}}
+  @media(max-width:480px){
+    html,body{font-size:14px}
+    .term{padding:14px}
+    table.report td{display:block;width:100%}
+    table.report td:first-child{margin-bottom:2px}
   }
-  .shake{
-    -webkit-animation:shake .42s cubic-bezier(.36,.07,.19,.97) both;
-            animation:shake .42s cubic-bezier(.36,.07,.19,.97) both;
-  }
-  @-webkit-keyframes spin{ from{ -webkit-transform:rotate(0)} to{ -webkit-transform:rotate(360deg)} }
-  @keyframes spin{ from{ transform:rotate(0)} to{ transform:rotate(360deg)} }
-  @-webkit-keyframes shake{
-    10%,90%{ -webkit-transform:translate3d(-1px,0,0) }
-    20%,80%{ -webkit-transform:translate3d(2px,0,0) }
-    30%,50%,70%{ -webkit-transform:translate3d(-3px,0,0) }
-    40%,60%{ -webkit-transform:translate3d(3px,0,0) }
-  }
-  @keyframes shake{
-    10%,90%{ transform:translate3d(-1px,0,0) }
-    20%,80%{ transform:translate3d(2px,0,0) }
-    30%,50%,70%{ transform:translate3d(-3px,0,0) }
-    40%,60%{ transform:translate3d(3px,0,0) }
-  }
-
-  /* Mobile tightening (extra 10–20% shrink + wrapping) */
-  @media (max-width:480px){
-    .term{ max-width:100%; padding:14px }
-    .label{ width:auto; display:block; margin-bottom:1px } /* value on its own line */
-    .btns button{ flex:1 }
-    .line.green{ white-space:normal; line-height:1.15 }    /* ticker wraps gracefully */
-  }
-
-  @media (prefers-reduced-motion: reduce){
-    .spin,.shake{ -webkit-animation:none; animation:none }
-  }
-
-  .err{ color:#ff6b6b; white-space:pre-wrap }
 </style>
 </head>
 <body>
 <div class="term" id="term">
-  <div class="line bar" id="title"></div>
-  <div class="line sep" id="sep"></div>
-  <div class="line yellow" id="subject"></div>
-  <div id="screen" class="mt"></div>
+  <div class="bar" id="title"></div>
+  <div class="sep" id="sep"></div>
+  <div class="yellow" id="subject"></div>
+  <div id="screen"></div>
   <div class="btns">
     <button id="again">Run again</button>
     <button id="share">Share</button>
   </div>
-  <div class="mt sub">Tip: if it looks cached, add <code>?v=4</code> to the URL and refresh.</div>
+  <div class="sub" style="margin-top:10px">Tip: add <code>?v=5</code> to URL to bust cache.</div>
 </div>
 
 <script>
 (() => {
-  // ===== personalize defaults (override via ?n=...&co=...) =====
-  const defaults = { n: "Walter", co: "Life Insurance Co." };
-  const qs = new URLSearchParams(location.search);
-  const name = qs.get('n')  || defaults.n;
-  const co   = qs.get('co') || defaults.co;
-  // =============================================================
+  const defaults={n:"Walter",co:"Life Insurance Co."};
+  const qs=new URLSearchParams(location.search);
+  const name=qs.get('n')||defaults.n;
+  const co=qs.get('co')||defaults.co;
 
-  const term   = document.getElementById('term');
-  const title  = document.getElementById('title');
-  const sep    = document.getElementById('sep');
-  const subj   = document.getElementById('subject');
-  const screen = document.getElementById('screen');
-  const again  = document.getElementById('again');
-  const share  = document.getElementById('share');
+  const term=document.getElementById('term');
+  const title=document.getElementById('title');
+  const sep=document.getElementById('sep');
+  const subj=document.getElementById('subject');
+  const screen=document.getElementById('screen');
+  const again=document.getElementById('again');
+  const share=document.getElementById('share');
 
-  const sleep = ms => new Promise(r=>setTimeout(r,ms));
-  const pad = n => (''+n).padStart(2,'0');
-  function stamp(){
-    const d=new Date();
-    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  }
-  function clearScreen(){ screen.innerHTML=''; }
-  function line(txt, cls){ const d=document.createElement('div'); d.className='line'+(cls?' '+cls:''); d.textContent=txt; screen.appendChild(d); return d; }
-  function row(label,value){ const d=document.createElement('div'); d.className='line'; d.innerHTML=`<span class="label">${label}:</span> <span class="mag">${value}</span>`; screen.appendChild(d); }
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  const pad=n=>(''+n).padStart(2,'0');
   function header(){
-    const ttl = `Projections Terminal — ${stamp()}`;
-    title.textContent = ttl; sep.textContent = '='.repeat(ttl.length); subj.textContent = `Subject: ${name}`;
+    const d=new Date();
+    const ttl=`Projections Terminal — ${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    title.textContent=ttl;
+    sep.textContent='='.repeat(ttl.length);
+    subj.textContent=`Subject: ${name}`;
   }
+  function clearScreen(){screen.innerHTML='';}
 
-  // spinny cat
-  const catArt = ` /\\_/\\  \n( o.o ) \n > ^ < `;
+  const catArt=` /\\_/\\  \n( o.o ) \n > ^ < `;
   async function showCats(){
     clearScreen();
-    const wrap=document.createElement('div'); wrap.className='center';
-    const box=document.createElement('div'); box.style.textAlign='center';
-    const msg=document.createElement('div'); msg.className='line yellow'; msg.textContent='🐱 Spinning up market data...';
-    const cat=document.createElement('pre'); cat.className='cat spin'; cat.textContent=catArt;
-    box.appendChild(msg); box.appendChild(cat); wrap.appendChild(box); screen.appendChild(wrap);
-    await sleep(1400); clearScreen();
+    const wrap=document.createElement('div');wrap.className='center';
+    const msg=document.createElement('div');msg.className='yellow';msg.textContent='🐱 Spinning up market data...';
+    const cat=document.createElement('pre');cat.className='cat spin';cat.textContent=catArt;
+    wrap.appendChild(msg);wrap.appendChild(cat);screen.appendChild(wrap);
+    await sleep(1400);clearScreen();
   }
 
-  function sparkline(){
-    const bars=['▁','▂','▃','▄','▅','▆','▇']; let out='';
-    for(let i=0;i<20;i++) out+=bars[(Math.random()*bars.length)|0]; /* slightly shorter */
-    return out+'  📈';
-  }
   const rndInt=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
   const rndBeta=()=> (rndInt(11,19)/10).toFixed(2);
-
   const notes=[
     'Premium waived for clever banter.',
     'Policy lapse risk rises with poor communication.',
@@ -152,73 +114,79 @@
   function report(){
     const beta=rndBeta(), roi=rndInt(120,420), hy=rndInt(60,100);
     const uw=notes[(Math.random()*notes.length)|0];
-    [
-      ['Role',              `AVP, Finance — ${co}`],
-      ['Analyst Rating',    'STRONG BUY  ❤️'],
-      ['Chemistry Beta',    beta],
-      ['Sentiment',         'Ultra Bullish'],
-      ['Projected ROI',     `${roi}% smiles next quarter`],
-      ['HYROX Index',       `${hy}/100 — built for endurance`],
-      ['Underwriting Note', uw],
-      ['Insider Tip',       'Run due diligence: coffee with me.']
-    ].forEach(([k,v])=>row(k,v));
-
-    line('', '');
-    line(`Price Action:  ${sparkline()}`, 'green');
-    line('', '');
-    line(`✨ ${name}, don't keep me waiting — I'm free next week. ✨`, 'yellow');
-    line('', '');
+    const table=document.createElement('table');table.className='report';
+    const rows=[
+      ['Role',`AVP, Finance — ${co}`],
+      ['Analyst Rating','STRONG BUY  ❤️'],
+      ['Chemistry Beta',beta],
+      ['Sentiment','Ultra Bullish'],
+      ['Projected ROI',`${roi}% smiles next quarter`],
+      ['HYROX Index',`${hy}/100 — built for endurance`],
+      ['Underwriting Note',uw],
+      ['Insider Tip','Run due diligence: coffee with me.']
+    ];
+    rows.forEach(([k,v])=>{
+      const tr=document.createElement('tr');
+      const td1=document.createElement('td');td1.textContent=k;
+      const td2=document.createElement('td');td2.textContent=v;
+      tr.appendChild(td1);tr.appendChild(td2);
+      table.appendChild(tr);
+    });
+    screen.appendChild(table);
+    const pa=document.createElement('div');
+    pa.className='green';
+    pa.textContent='Price Action:  '+sparkline();
+    screen.appendChild(pa);
+    const msg=document.createElement('div');
+    msg.className='yellow';
+    msg.style.marginTop='8px';
+    msg.textContent=`✨ ${name}, don't keep me waiting — I'm free next week. ✨`;
+    screen.appendChild(msg);
   }
 
-  // ticker with fewer columns + tighter padding on phones
-  function tickerCols(){
-    const w = innerWidth;
-    if (w < 380) return 4;
-    if (w < 430) return 5;
-    if (w < 520) return 6;
-    return 7;
+  function sparkline(){
+    const bars=['▁','▂','▃','▄','▅','▆','▇'];let out='';
+    for(let i=0;i<20;i++) out+=bars[(Math.random()*bars.length)|0];
+    return out+'  📈';
   }
 
   async function ticker(){
-    const cols = tickerCols();
-    const pad = 6; // was 8
-    const symbols=['🔥HOT','❤️BUY','$WALT','💸LUV','$DATE',,'$ROI↑','$QTRWIN'];
+    const cols=innerWidth<380?4:innerWidth<430?5:innerWidth<520?6:7;
+    const symbols=['$LOVE','❤️BUY','$WALT','💸LUV','$DATE','$COFFEE','$ROI↑','$BETA1.6','$QTRWIN'];
     for(let i=0;i<26;i++){
-      let rowTxt=''; for(let j=0;j<cols;j++){
+      let rowTxt='';
+      for(let j=0;j<cols;j++){
         const s=symbols[(Math.random()*symbols.length)|0];
-        rowTxt += (s+' '.repeat(pad)).slice(0,pad+2);
+        rowTxt += (s+' '.repeat(6)).slice(0,8);
       }
-      line(rowTxt,'green'); await sleep(70);
+      const line=document.createElement('div');
+      line.className='green';
+      line.textContent=rowTxt;
+      screen.appendChild(line);
+      await sleep(70);
     }
-    line('', '');
   }
 
-  async function runOnce(){ header(); await showCats(); report(); await ticker(); }
+  async function runOnce(){header();await showCats();report();await ticker();}
 
-  // shake + rerun
-  again.addEventListener('click', async ()=>{
-    term.classList.remove('shake'); void term.offsetWidth; term.classList.add('shake');
-    clearScreen();
-    try{ await runOnce(); }
-    catch(e){ const d=document.createElement('div'); d.className='line err'; d.textContent='Error: '+e; screen.appendChild(d); }
-    finally{ term.addEventListener('animationend',()=>term.classList.remove('shake'),{once:true}); window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}); }
+  again.addEventListener('click',async()=>{
+    term.classList.remove('shake');void term.offsetWidth;term.classList.add('shake');
+    clearScreen();await runOnce();
+    term.addEventListener('animationend',()=>term.classList.remove('shake'),{once:true});
+    window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
   });
 
-  // share
-  share.addEventListener('click', async ()=>{
-    const url = new URL(location.href); url.searchParams.set('n', name); url.searchParams.set('co', co);
-    try{
-      if(navigator.share){ await navigator.share({title:'Projections Terminal', url:url.toString()}); }
-      else if(navigator.clipboard){ await navigator.clipboard.writeText(url.toString()); alert('Link copied!'); }
-      else{ prompt('Copy link:', url.toString()); }
-    }catch(e){ alert('Could not share: '+e); }
+  share.addEventListener('click',async()=>{
+    const url=new URL(location.href);url.searchParams.set('n',name);url.searchParams.set('co',co);
+    if(navigator.share){await navigator.share({title:'Projections Terminal',url:url.toString()});}
+    else if(navigator.clipboard){await navigator.clipboard.writeText(url.toString());alert('Link copied!');}
+    else{prompt('Copy link:',url.toString());}
   });
 
-  try{ header(); runOnce(); }catch(e){ const d=document.createElement('div'); d.className='line err'; d.textContent='Load error: '+e; screen.appendChild(d); }
+  header();runOnce();
 })();
 </script>
 </body>
 </html>
-
 
 
