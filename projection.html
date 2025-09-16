@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Projection Terminal</title>
+<style>
+  :root { --bg:#0b0b0c; --fg:#e8e8e8; --sub:#9aa0a6; --cyan:#00e5ff; --dc:#005b66; --mag:#ff8de3; --green:#7CFC00; --yellow:#ffe066; }
+  html,body { height:100%; margin:0; background:var(--bg); color:var(--fg); font:16px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+  .term { max-width:740px; margin:0 auto; padding:20px; }
+  .bar { color:var(--cyan); }
+  .sep { color:var(--dc); }
+  .label { color:var(--mag); display:inline-block; width:18ch; }
+  .yellow { color:var(--yellow); }
+  .green { color:var(--green); }
+  .sub { color:var(--sub); }
+  .mt { margin-top: 12px; }
+  .btns { margin-top:18px; display:flex; gap:10px; flex-wrap:wrap; }
+  button { background:#151517; color:#fff; border:1px solid #2a2a2e; padding:8px 12px; border-radius:6px; font:inherit; cursor:pointer; }
+  button:active { transform: translateY(1px); }
+  .blink { animation: blink 1s step-end infinite; }
+  @keyframes blink { 50%{ opacity:.2 } }
+  .hidden { display:none; }
+  .line { white-space:pre; }
+</style>
+</head>
+<body>
+<div class="term" id="term">
+  <div class="line bar" id="title"></div>
+  <div class="line sep" id="sep"></div>
+  <div class="line yellow" id="subject"></div>
+  <div id="screen" class="mt"></div>
+  <div class="btns">
+    <button id="again">Run again</button>
+    <button id="share">Share this</button>
+  </div>
+  <div class="mt sub">Tip: Add <code>?n=Walter&co=Life%20Insurance%20Co.</code> to the link for auto-personalization.</div>
+</div>
+
+<script>
+(() => {
+  // ==== personalize defaults here ====
+  const defaultName = "Walter";
+  const defaultCo   = "Life Insurance Co.";
+  // ===================================
+
+  const q = new URLSearchParams(location.search);
+  const name = q.get('n') || defaultName;
+  const co   = q.get('co') || defaultCo;
+
+  const titleEl = document.getElementById('title');
+  const sepEl   = document.getElementById('sep');
+  const subjEl  = document.getElementById('subject');
+  const screen  = document.getElementById('screen');
+  const btnAgain= document.getElementById('again');
+  const btnShare= document.getElementById('share');
+
+  function nowStamp(){
+    const d = new Date();
+    const pad = n => n.toString().padStart(2,'0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  function setHeader(){
+    const ttl = `Bloom-bae Terminal — ${nowStamp()}`;
+    titleEl.textContent = ttl;
+    sepEl.textContent = '='.repeat(ttl.length);
+    subjEl.textContent = `Subject: ${name}`;
+  }
+
+  // cats animation (ASCII, paw up/down)
+  const catFrames = [
+` /\\_/\\  
+( o.o ) 
+ > ^ <   paw up`,
+` /\\_/\\  
+( o.o ) 
+ ^   ^   paw down`
+  ];
+
+  function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+  function line(txt, cls){ const d=document.createElement('div'); d.className='line'+(cls? ' '+cls:''); d.textContent = txt; screen.appendChild(d); return d; }
+  function lineHTML(txt, cls){ const d=document.createElement('div'); d.className='line'+(cls? ' '+cls:''); d.innerHTML = txt; screen.appendChild(d); return d; }
+  function clearScreen(){ screen.innerHTML=''; }
+
+  function sparkline(){
+    const bars = ['▁','▂','▃','▄','▅','▆','▇'];
+    let out = '';
+    for(let i=0;i<22;i++){ out += bars[Math.floor(Math.random()*bars.length)]; }
+    return out + '  📈';
+  }
+  function rndInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+  function rndBeta(){ return (rndInt(11,19)/10).toFixed(2); }
+
+  const notes = [
+    'Premium waived for clever banter.',
+    'Policy lapse risk rises with poor communication.',
+    'Premium discount applied for admission of blushing.',
+    'Policyholder owes one coffee date for compliance.'
+  ];
+
+  async function showCats(){
+    for(let i=0;i<8;i++){
+      clearScreen();
+      line('🐱  Dancing Cats Loading Market Data...  🐱','yellow');
+      line(catFrames[i%2],'mag');
+      await sleep(300);
+    }
+    clearScreen();
+  }
+
+  function report(){
+    const beta = rndBeta();
+    const roi  = rndInt(120,420);
+    const hy   = rndInt(60,100);
+    const uw   = notes[Math.floor(Math.random()*notes.length)];
+
+    const rows = [
+      ['Role',              `AVP, Finance — ${co}`],
+      ['Analyst Rating',    'STRONG BUY  ❤️'],
+      ['Chemistry Beta',    beta],
+      ['Sentiment',         'Ultra Bullish'],
+      ['Projected ROI',     `${roi}% smiles next quarter`],
+      ['HYROX Index',       `${hy}/100 — built for endurance`],
+      ['Underwriting Note', uw],
+      ['Insider Tip',       'Run due diligence: coffee with me.']
+    ];
+    rows.forEach(([k,v])=>{
+      const d = document.createElement('div');
+      d.className = 'line';
+      d.innerHTML = `<span class="label">${k}:</span> <span class="mag">${v}</span>`;
+      screen.appendChild(d);
+    });
+    line('', '');
+    line(`Price Action:  ${sparkline()}`, 'green');
+    line('', '');
+    line(`✨ ${name}, don't keep me waiting — I'm free next week. ✨`, 'yellow');
+    line('', '');
+  }
+
+  async function ticker(){
+    const symbols = ['$HOT','❤️BUY','WALT','QTRWIN','💸DATE','$ROI↑'];
+    for(let i=0;i<28;i++){
+      const d = document.createElement('div');
+      d.className='line green';
+      let row='';
+      for(let j=0;j<7;j++){
+        const s = symbols[Math.floor(Math.random()*symbols.length)];
+        row += (s+'        ').slice(0,8);
+      }
+      d.textContent = row;
+      screen.appendChild(d);
+      await sleep(80);
+    }
+    line('', '');
+  }
+
+  async function runOnce(){
+    setHeader();
+    await showCats();
+    report();
+    await ticker();
+  }
+
+  btnAgain.addEventListener('click', async ()=>{
+    clearScreen();
+    await runOnce();
+    window.scrollTo({top:document.body.scrollHeight, behavior:'smooth'});
+  });
+
+  btnShare.addEventListener('click', async ()=>{
+    const url = new URL(location.href);
+    url.searchParams.set('n', name);
+    url.searchParams.set('co', co);
+    if (navigator.share) {
+      await navigator.share({title:'Bloom-bae Terminal', url: url.toString()});
+    } else {
+      await navigator.clipboard.writeText(url.toString());
+      alert('Link copied!');
+    }
+  });
+
+  setHeader();
+  runOnce();
+})();
+</script>
+</body>
+</html>
