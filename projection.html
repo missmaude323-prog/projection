@@ -9,61 +9,63 @@
     --bg:#0b0b0c; --fg:#e8e8e8; --sub:#9aa0a6; --cyan:#00e5ff; --dc:#005b66;
     --mag:#ff8de3; --green:#7CFC00; --yellow:#ffe066; --card:#151517; --border:#2a2a2e;
   }
-  html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);
-    font:16px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;}
-  .term{max-width:740px;margin:0 auto;padding:20px}
-  .bar{color:var(--cyan)}
-  .sep{color:var(--dc)}
-  .label{color:var(--mag);display:inline-block;width:18ch}
-  .mag{color:var(--mag)}
-  .yellow{color:var(--yellow)}
-  .green{color:var(--green)}
-  .sub{color:var(--sub)}
-  .mt{margin-top:12px}
-  .btns{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap}
-  button{background:var(--card);color:#fff;border:1px solid var(--border);padding:12px 14px;
-    border-radius:10px;font:inherit;cursor:pointer;min-width:120px}
-  button:active{transform:translateY(1px)}
-  .line{white-space:pre;word-break:break-word}
-  .center{display:flex;align-items:center;justify-content:center;min-height:140px}
-  .cat{white-space:pre;line-height:1.1}
+  html,body{
+    height:100%; margin:0; background:var(--bg); color:var(--fg);
+    font:16px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    overflow-x:hidden;
+  }
+  .term{ max-width:680px; margin:0 auto; padding:20px }
+  .bar{ color:var(--cyan) }
+  .sep{ color:var(--dc) }
+  .label{ color:var(--mag); display:inline-block; width:16ch }
+  .mag{ color:var(--mag) }
+  .yellow{ color:var(--yellow) }
+  .green{ color:var(--green) }
+  .sub{ color:var(--sub) }
+  .mt{ margin-top:12px }
+  .btns{ margin-top:18px; display:flex; gap:10px; flex-wrap:wrap }
+  button{
+    background:var(--card); color:#fff; border:1px solid var(--border);
+    padding:12px 14px; border-radius:10px; font:inherit; cursor:pointer; min-width:110px
+  }
+  button:active{ transform:translateY(1px) }
+  .line{ white-space:pre-wrap; word-break:break-word }
+  .center{ display:flex; align-items:center; justify-content:center; min-height:140px }
+  .cat{ white-space:pre; line-height:1.1 }
   .spin{
-    display:inline-block;will-change:transform;
-    -webkit-animation:spin 1.2s linear infinite;
-            animation:spin 1.2s linear infinite;
-    -webkit-transform-origin:center center; transform-origin:center center;
+    display:inline-block; will-change:transform; transform-origin:center center;
+    -webkit-animation:spin 1.2s linear infinite; animation:spin 1.2s linear infinite;
   }
   .shake{
     -webkit-animation:shake .45s cubic-bezier(.36,.07,.19,.97) both;
             animation:shake .45s cubic-bezier(.36,.07,.19,.97) both;
   }
-
-  @-webkit-keyframes spin{from{-webkit-transform:rotate(0)}to{-webkit-transform:rotate(360deg)}}
-  @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-
+  @-webkit-keyframes spin{ from{ -webkit-transform:rotate(0) } to{ -webkit-transform:rotate(360deg) } }
+  @keyframes spin{ from{ transform:rotate(0) } to{ transform:rotate(360deg) } }
   @-webkit-keyframes shake{
-    10%,90%{-webkit-transform:translate3d(-1px,0,0)}
-    20%,80%{-webkit-transform:translate3d(2px,0,0)}
-    30%,50%,70%{-webkit-transform:translate3d(-4px,0,0)}
-    40%,60%{-webkit-transform:translate3d(4px,0,0)}
+    10%,90%{ -webkit-transform:translate3d(-1px,0,0) }
+    20%,80%{ -webkit-transform:translate3d(2px,0,0) }
+    30%,50%,70%{ -webkit-transform:translate3d(-4px,0,0) }
+    40%,60%{ -webkit-transform:translate3d(4px,0,0) }
   }
   @keyframes shake{
-    10%,90%{transform:translate3d(-1px,0,0)}
-    20%,80%{transform:translate3d(2px,0,0)}
-    30%,50%,70%{transform:translate3d(-4px,0,0)}
-    40%,60%{transform:translate3d(4px,0,0)}
+    10%,90%{ transform:translate3d(-1px,0,0) }
+    20%,80%{ transform:translate3d(2px,0,0) }
+    30%,50%,70%{ transform:translate3d(-4px,0,0) }
+    40%,60%{ transform:translate3d(4px,0,0) }
   }
-
+  /* Mobile tweaks */
   @media (max-width:480px){
-    html,body{font-size:18px}
-    .term{padding:16px}
-    .label{width:16ch}
-    button{flex:1}
+    html,body{ font-size:15px }
+    .term{ padding:14px }
+    .label{ width:auto; display:block; margin-bottom:2px } /* value wraps to next line */
+    .btns button{ flex:1 }
+    .line.green{ white-space:normal; line-height:1.2 }    /* ticker can wrap naturally */
   }
   @media (prefers-reduced-motion: reduce){
-    .spin,.shake{-webkit-animation:none;animation:none}
+    .spin,.shake{ -webkit-animation:none; animation:none }
   }
-  .err{color:#ff6b6b;white-space:pre-wrap}
+  .err{ color:#ff6b6b; white-space:pre-wrap }
 </style>
 </head>
 <body>
@@ -81,8 +83,12 @@
 
 <script>
 (() => {
-  const name = "Walter";
-  const co   = "Life Insurance Co.";
+  // ===== personalize defaults (can override via ?n=...&co=...) =====
+  const defaults = { n: "Walter", co: "Life Insurance Co." };
+  const qs = new URLSearchParams(location.search);
+  const name = qs.get('n')  || defaults.n;
+  const co   = qs.get('co') || defaults.co;
+  // =================================================================
 
   const term   = document.getElementById('term');
   const title  = document.getElementById('title');
@@ -94,66 +100,38 @@
 
   const sleep = ms => new Promise(r=>setTimeout(r,ms));
   const pad = n => (''+n).padStart(2,'0');
-  function nowStamp(){
-    const d = new Date();
-    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  function stamp(){
+    const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
   function clearScreen(){ screen.innerHTML=''; }
-  function line(txt, cls){
-    const d=document.createElement('div');
-    d.className='line'+(cls?' '+cls:'');
-    d.textContent=txt;
-    screen.appendChild(d);
-    return d;
-  }
-  function row(label, value){
-    const d=document.createElement('div');
-    d.className='line';
-    d.innerHTML=`<span class="label">${label}:</span> <span class="mag">${value}</span>`;
-    screen.appendChild(d);
-  }
-  function setHeader(){
-    const ttl = `Projections Terminal — ${nowStamp()}`;
-    title.textContent = ttl;
-    sep.textContent   = '='.repeat(ttl.length);
-    subj.textContent  = `Subject: ${name}`;
+  function line(txt, cls){ const d=document.createElement('div'); d.className='line'+(cls?' '+cls:''); d.textContent=txt; screen.appendChild(d); return d; }
+  function row(label,value){ const d=document.createElement('div'); d.className='line'; d.innerHTML=`<span class="label">${label}:</span> <span class="mag">${value}</span>`; screen.appendChild(d); }
+  function header(){
+    const ttl = `Projections Terminal — ${stamp()}`;
+    title.textContent = ttl; sep.textContent = '='.repeat(ttl.length); subj.textContent = `Subject: ${name}`;
   }
 
-  // Spinny cat
-  const catArt =
-` /\\_/\\  
-( o.o ) 
- > ^ < `;
-
+  // spinny cat
+  const catArt = ` /\\_/\\  \n( o.o ) \n > ^ < `;
   async function showCats(){
     clearScreen();
-    const wrap = document.createElement('div');
-    wrap.className = 'center';
-    const box = document.createElement('div');
-    box.style.textAlign = 'center';
-    const msg = document.createElement('div');
-    msg.className='line yellow';
-    msg.textContent='🐱 Spinning up market data...';
-    const cat = document.createElement('pre');
-    cat.className='cat spin';
-    cat.textContent = catArt;
-    box.appendChild(msg);
-    box.appendChild(cat);
-    wrap.appendChild(box);
-    screen.appendChild(wrap);
-    await sleep(1600);
-    clearScreen();
+    const wrap=document.createElement('div'); wrap.className='center';
+    const box=document.createElement('div'); box.style.textAlign='center';
+    const msg=document.createElement('div'); msg.className='line yellow'; msg.textContent='🐱 Spinning up market data...';
+    const cat=document.createElement('pre'); cat.className='cat spin'; cat.textContent=catArt;
+    box.appendChild(msg); box.appendChild(cat); wrap.appendChild(box); screen.appendChild(wrap);
+    await sleep(1600); clearScreen();
   }
 
   function sparkline(){
-    const bars = ['▁','▂','▃','▄','▅','▆','▇'];
-    let out=''; for(let i=0;i<22;i++) out+=bars[(Math.random()*bars.length)|0];
-    return out + '  📈';
+    const bars=['▁','▂','▃','▄','▅','▆','▇']; let out='';
+    for(let i=0;i<22;i++) out+=bars[(Math.random()*bars.length)|0];
+    return out+'  📈';
   }
-  const rndInt = (min,max)=> (Math.floor(Math.random()*(max-min+1))+min);
-  const rndBeta = ()=> (rndInt(11,19)/10).toFixed(2);
+  const rndInt=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
+  const rndBeta=()=> (rndInt(11,19)/10).toFixed(2);
 
-  const notes = [
+  const notes=[
     'Premium waived for clever banter.',
     'Policy lapse risk rises with poor communication.',
     'Premium discount applied for admission of blushing.',
@@ -161,12 +139,9 @@
   ];
 
   function report(){
-    const beta = rndBeta();
-    const roi  = rndInt(120,420);
-    const hy   = rndInt(60,100);
-    const uw   = notes[(Math.random()*notes.length)|0];
-
-    const rows = [
+    const beta=rndBeta(), roi=rndInt(120,420), hy=rndInt(60,100);
+    const uw=notes[(Math.random()*notes.length)|0];
+    [
       ['Role',              `AVP, Finance — ${co}`],
       ['Analyst Rating',    'STRONG BUY  ❤️'],
       ['Chemistry Beta',    beta],
@@ -175,8 +150,7 @@
       ['HYROX Index',       `${hy}/100 — built for endurance`],
       ['Underwriting Note', uw],
       ['Insider Tip',       'Run due diligence: coffee with me.']
-    ];
-    rows.forEach(([k,v])=>row(k,v));
+    ].forEach(([k,v])=>row(k,v));
 
     line('', '');
     line(`Price Action:  ${sparkline()}`, 'green');
@@ -186,73 +160,46 @@
   }
 
   async function ticker(){
-    const symbols = ['$LOVE','❤️BUY','$WALT','💸LUV','$DATE','$COFFEE','$ROI↑','$BETA1.6','$QTRWIN'];
+    // responsive columns: fewer on narrow screens
+    const cols = (innerWidth < 430 ? 4 : innerWidth < 520 ? 5 : 7);
+    const symbols=['$LOVE','❤️BUY','$WALT','💸LUV','$DATE','$COFFEE','$ROI↑','$BETA1.6','$QTRWIN'];
     for(let i=0;i<28;i++){
-      let rowTxt=''; for(let j=0;j<7;j++){
-        const s = symbols[(Math.random()*symbols.length)|0];
+      let rowTxt=''; for(let j=0;j<cols;j++){
+        const s=symbols[(Math.random()*symbols.length)|0];
         rowTxt += (s+'        ').slice(0,8);
       }
-      line(rowTxt,'green');
-      await sleep(80);
+      line(rowTxt,'green'); await sleep(80);
     }
     line('', '');
   }
 
-  async function runOnce(){
-    setHeader();
-    await showCats();
-    report();
-    await ticker();
-  }
+  async function runOnce(){ header(); await showCats(); report(); await ticker(); }
 
-  // Reload shake
+  // shake + rerun
   again.addEventListener('click', async ()=>{
-    // restart CSS animation
-    term.classList.remove('shake'); void term.offsetWidth;
-    term.classList.add('shake');
+    term.classList.remove('shake'); void term.offsetWidth; term.classList.add('shake');
     clearScreen();
-    try {
-      await runOnce();
-    } catch(e){
-      const d=document.createElement('div');
-      d.className='line err';
-      d.textContent='Error: '+(e && e.message ? e.message : e);
-      screen.appendChild(d);
-      console.error(e);
-    } finally {
-      term.addEventListener('animationend',()=>term.classList.remove('shake'),{once:true});
-      window.scrollTo({top:document.body.scrollHeight, behavior:'smooth'});
-    }
+    try{ await runOnce(); }catch(e){ const d=document.createElement('div'); d.className='line err'; d.textContent='Error: '+e; screen.appendChild(d); }
+    finally{ term.addEventListener('animationend',()=>term.classList.remove('shake'),{once:true}); window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}); }
   });
 
-  // Share
+  // share
   share.addEventListener('click', async ()=>{
+    const url = new URL(location.href);
+    url.searchParams.set('n', name); url.searchParams.set('co', co);
     try{
-      if (navigator.share) {
-        await navigator.share({title:'Projections Terminal', url: location.href});
-      } else if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(location.href);
-        alert('Link copied!');
-      } else {
-        prompt('Copy link:', location.href);
-      }
-    } catch(e){
-      alert('Could not share: '+e);
-    }
+      if(navigator.share){ await navigator.share({title:'Projections Terminal', url:url.toString()}); }
+      else if(navigator.clipboard){ await navigator.clipboard.writeText(url.toString()); alert('Link copied!'); }
+      else{ prompt('Copy link:', url.toString()); }
+    }catch(e){ alert('Could not share: '+e); }
   });
 
   // initial run
-  try {
-    setHeader();
-    runOnce();
-  } catch(e){
-    const d=document.createElement('div'); d.className='line err';
-    d.textContent='Load error: '+(e && e.message ? e.message : e);
-    screen.appendChild(d);
-  }
+  try{ header(); runOnce(); }catch(e){ const d=document.createElement('div'); d.className='line err'; d.textContent='Load error: '+e; screen.appendChild(d); }
 })();
 </script>
 </body>
 </html>
+
 
 
