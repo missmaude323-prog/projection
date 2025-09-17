@@ -10,39 +10,35 @@
     --mag:#ff8de3; --green:#7CFC00; --yellow:#ffe066; --red:#ff6961;
     --card:#151517; --border:#2a2a2e; --rowAlt:#151517;
   }
-  html,body{
-    margin:0; background:var(--bg); color:var(--fg);
-    font:clamp(12px,2.7vw,16px)/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
-    overflow-x:hidden;
-  }
-  .term{ max-width:640px; margin:0 auto; padding:18px }
-  .bar{ color:var(--cyan) }
-  .sep{ color:var(--dc) }
+  html,body{margin:0;background:var(--bg);color:var(--fg);
+    font:clamp(12px,2.7vw,16px)/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    overflow-x:hidden;}
+  .term{max-width:640px;margin:0 auto;padding:18px}
+  .bar{color:var(--cyan)}
+  .sep{color:var(--dc)}
 
-  table.report{ width:100%; border-collapse:collapse; margin:12px 0 }
-  table.report tr:nth-child(even){ background:var(--rowAlt) }
-  table.report td{ padding:4px 4px; vertical-align:top }
-  table.report td:first-child{ color:var(--mag); white-space:nowrap; padding-right:.75em }
-  table.report td:last-child{ color:var(--fg) }
+  table.report{width:100%;border-collapse:collapse;margin:12px 0}
+  table.report tr:nth-child(even){background:var(--rowAlt)}
+  table.report td{padding:4px 4px;vertical-align:top}
+  table.report td:first-child{color:var(--mag);white-space:nowrap;padding-right:.75em}
+  table.report td:last-child{color:var(--fg)}
 
-  .yellow{ color:var(--yellow) }
-  .green{ color:var(--green) }
-  .red{ color:var(--red) }
-  .sub{ color:var(--sub) }
+  .yellow{color:var(--yellow)}
+  .green{color:var(--green)}
+  .red{color:var(--red)}
+  .sub{color:var(--sub)}
 
-  .btns{ margin-top:14px; display:flex; gap:8px; flex-wrap:wrap }
-  button{
-    background:var(--card); color:#fff; border:1px solid var(--border);
-    padding:9px 11px; border-radius:9px; font:inherit; cursor:pointer; min-width:96px
-  }
-  button:active{ transform:translateY(1px) }
+  .btns{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+  button{background:var(--card);color:#fff;border:1px solid var(--border);
+    padding:9px 11px;border-radius:9px;font:inherit;cursor:pointer;min-width:96px}
+  button:active{transform:translateY(1px)}
 
-  .center{ display:flex; align-items:center; justify-content:center; min-height:120px }
-  .cat{ white-space:pre; line-height:1.05 }
-  .spin{ display:inline-block; transform-origin:center center;
-         -webkit-animation:spin 1.2s linear infinite; animation:spin 1.2s linear infinite }
-  .shake{ -webkit-animation:shake .42s cubic-bezier(.36,.07,.19,.97) both;
-          animation:shake .42s cubic-bezier(.36,.07,.19,.97) both }
+  .center{display:flex;align-items:center;justify-content:center;min-height:120px}
+  .cat{white-space:pre;line-height:1.05}
+  .spin{display:inline-block;transform-origin:center center;
+         -webkit-animation:spin 1.2s linear infinite;animation:spin 1.2s linear infinite}
+  .shake{-webkit-animation:shake .42s cubic-bezier(.36,.07,.19,.97) both;
+          animation:shake .42s cubic-bezier(.36,.07,.19,.97) both}
 
   @-webkit-keyframes spin{from{-webkit-transform:rotate(0)}to{-webkit-transform:rotate(360deg)}}
   @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
@@ -56,14 +52,11 @@
     40%,60%{transform:translate3d(3px,0,0)}}
 
   @media (max-width:480px){
-    html,body{ font-size:14px }
-    .term{ padding:14px }
-    table.report td{ display:block; width:100% }
-    table.report td:last-child{ padding-left:1em }
+    html,body{font-size:14px}
+    .term{padding:14px}
+    table.report td{display:block;width:100%}
+    table.report td:last-child{padding-left:1em}
   }
-
-  .gif-wrap{ margin-top:10px; display:flex; justify-content:center }
-  .gif-wrap img{ max-width:100%; border-radius:8px; border:1px solid var(--border) }
 </style>
 </head>
 <body>
@@ -77,39 +70,35 @@
     <button id="share">Share</button>
   </div>
   <div class="sub" style="margin-top:10px">
-    Tip: add <code>?v=15</code> to bust cache. Test with <code>?phase=bullish|cautious|warning|tyra</code>. Use <code>?reset=1</code> to re-arm first-visit mode (device-local).
+    Tip: add <code>?v=18</code> to bust cache. Test phases with <code>?phase=warning</code> or <code>?phase=tyra</code>.
   </div>
 </div>
 
 <script>
 (() => {
-  // Personalization from query
   const defaults={n:"Walter",co:"Life Insurance Co."};
   const qs=new URLSearchParams(location.search);
   const name=qs.get('n')||defaults.n;
   const co=qs.get('co')||defaults.co;
 
-  // Schedule (America/Chicago)
   const TZ='America/Chicago';
   const chicagoNow=()=> new Date(new Date().toLocaleString('en-US',{timeZone:TZ}));
   function chicagoTomorrowAt3(){
     const n=chicagoNow();
     const t=new Date(n.getFullYear(),n.getMonth(),n.getDate(),15,0,0);
-    t.setDate(t.getDate()+1); // explicit "tomorrow at 3pm CT"
+    t.setDate(t.getDate()+1);
     return t;
   }
-  const T1=chicagoTomorrowAt3();               // flip to warning
-  const T2=new Date(T1.getTime()+48*3600*1000); // +48h Tyra
+  const T1=chicagoTomorrowAt3();
+  const T2=new Date(T1.getTime()+48*3600*1000);
 
-  // First-visit memory (bullish once per device)
   const VISIT_KEY='pt_visitCount_v1';
-  if(qs.get('reset')==='1'){ try{ localStorage.removeItem(VISIT_KEY); }catch(e){} }
+  if(qs.get('reset')==='1'){try{localStorage.removeItem(VISIT_KEY);}catch(e){}}
   let visitCount=0;
-  try{ visitCount=parseInt(localStorage.getItem(VISIT_KEY)||'0',10)||0; }catch(e){}
-  const isFirstVisit = visitCount===0;
-  try{ localStorage.setItem(VISIT_KEY, String(visitCount+1)); }catch(e){}
+  try{visitCount=parseInt(localStorage.getItem(VISIT_KEY)||'0',10)||0;}catch(e){}
+  const isFirstVisit=visitCount===0;
+  try{localStorage.setItem(VISIT_KEY,String(visitCount+1));}catch(e){}
 
-  // DOM
   const term=document.getElementById('term');
   const title=document.getElementById('title');
   const sep=document.getElementById('sep');
@@ -126,159 +115,90 @@
     sep.textContent='='.repeat(ttl.length);
     subj.textContent=`Subject: ${name}`;
   }
-  function clearScreen(){ screen.innerHTML=''; }
+  function clearScreen(){screen.innerHTML='';}
 
-  // Spinny cat
   const catArt=` /\\_/\\  \n( o.o ) \n > ^ < `;
   async function showCats(){
     clearScreen();
-    const wrap=document.createElement('div'); wrap.className='center';
-    const msg=document.createElement('div'); msg.className='yellow';
+    const wrap=document.createElement('div');wrap.className='center';
+    const msg=document.createElement('div');msg.className='yellow';
     msg.textContent='🐱 Spinning up market data...';
-    const cat=document.createElement('pre'); cat.className='cat spin'; cat.textContent=catArt;
-    wrap.appendChild(msg); wrap.appendChild(cat); screen.appendChild(wrap);
-    await sleep(1000); clearScreen();
+    const cat=document.createElement('pre');cat.className='cat spin';cat.textContent=catArt;
+    wrap.appendChild(msg);wrap.appendChild(cat);screen.appendChild(wrap);
+    await sleep(1000);clearScreen();
   }
 
-  // Helpers
   const rndInt=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
-  const rndBeta=()=> (rndInt(16,19)/10).toFixed(2); // 1.6–1.9
-  const rndHyrox=()=> rndInt(86,100);               // 86–100
+  const rndBeta=()=> (rndInt(16,19)/10).toFixed(2);
+  const rndHyrox=()=> rndInt(86,100);
 
-  // Phase logic (+ test override)
   function getPhase(){
-    const override=qs.get('phase'); if(override) return override;
+    const override=qs.get('phase');if(override)return override;
     const nowC=chicagoNow();
-    if(nowC>=T2) return 'tyra';
-    if(nowC>=T1) return 'warning';
-    return isFirstVisit ? 'bullish' : 'cautious';
+    if(nowC>=T2)return'tyra';
+    if(nowC>=T1)return'warning';
+    return isFirstVisit?'bullish':'cautious';
   }
-
-  // Robust Tyra GIF loading (local first, fallback if needed)
-  const localDir = location.pathname.replace(/[^\/]+$/, ''); // e.g. "/projection/"
-  const TYRA_GIF_URLS = [
-    `${localDir}tyra2.gif?v=${Date.now()}`,                                   // local with cache-bust
-    'https://media.giphy.com/media/3oz8xKaR836UJOYeOc/giphy.gif'             // fallback
-  ];
 
   function report(){
     const phase=getPhase();
     const beta=rndBeta(), hy=rndHyrox();
-
     let rating,sentiment,replyProb,uwNotes,paClass,paIcon,endMsgClass,endMsgText,addRows=[];
     if(phase==='bullish'){
-      rating='STRONG BUY  ❤️'; sentiment='Ultra Bullish'; replyProb=rndInt(70,95);
+      rating='STRONG BUY  ❤️';sentiment='Ultra Bullish';replyProb=rndInt(70,95);
       uwNotes=['Premium waived for clever banter.','Dividend payout in smiles upon reply.','Policyholder owes one coffee date for compliance.','Projected synergy high; follow-up recommended.'];
-      paClass='green'; paIcon='📈'; endMsgClass='yellow'; endMsgText=`✨ ${name}, don't keep me waiting — I'm free next week. ✨`;
+      paClass='green';paIcon='📈';endMsgClass='yellow';endMsgText=`✨ ${name}, don't keep me waiting — I'm free next week. ✨`;
     }else if(phase==='cautious'){
-      rating='HOLD — under review'; sentiment='Cautiously bearish'; replyProb=rndInt(20,65);
+      rating='HOLD — under review';sentiment='Cautiously bearish';replyProb=rndInt(20,65);
       uwNotes=['Policy lapse risk rises with poor communication.','Premium waived for clever banter (pending response).','Premium discount applied for admission of blushing.','Compliance flag: response time trending long.'];
-      paClass='yellow'; paIcon='⚠️'; endMsgClass='red'; endMsgText='Note: response time trending bearish — upgrade recommended.'; addRows.push(['Disappointment Indicator','Elevated']);
+      paClass='yellow';paIcon='⚠️';endMsgClass='red';endMsgText='Note: response time trending bearish — upgrade recommended.';addRows.push(['Disappointment Indicator','Elevated']);
     }else if(phase==='warning'){
-      rating='HOLD — warning flag'; sentiment='Bearish drift'; replyProb=rndInt(10,45);
+      rating='HOLD — warning flag';sentiment='Bearish drift';replyProb=rndInt(10,45);
       uwNotes=['Communication gap widening; risk premium applied.','Escalation threshold approaching.','Underwriter requests evidence of effort.','Signal-to-noise ratio deteriorating.'];
-      paClass='yellow'; paIcon='⚠️'; endMsgClass='red'; endMsgText='Warning: prolonged silence impacting outlook.'; addRows.push(['Disappointment Indicator','High']);
-    }else{ // tyra
-      rating='SELL — sentiment break'; sentiment='Decisively bearish'; replyProb=rndInt(0,25);
+      paClass='yellow';paIcon='⚠️';endMsgClass='red';endMsgText='Warning: prolonged silence impacting outlook.';addRows.push(['Disappointment Indicator','High']);
+    }else{
+      rating='SELL — sentiment break';sentiment='Decisively bearish';replyProb=rndInt(0,25);
       uwNotes=['Position closed due to extended non-response.','Confidence interval breached.','Liquidity evaporated; reallocating attention.','Final reminder issued; no fill.'];
-      paClass='red'; paIcon='🛑'; endMsgClass='red'; endMsgText='We were rooting for you. We were ALL rooting for you.'; addRows.push(['Disappointment Indicator','Critical']);
+      paClass='red';paIcon='🛑';endMsgClass='red';endMsgText='We were rooting for you. We were ALL rooting for you.';addRows.push(['Disappointment Indicator','Critical']);
     }
 
     const uw=uwNotes[(Math.random()*uwNotes.length)|0];
-
-    const table=document.createElement('table'); table.className='report';
-    const rows=[
-      ['Role',              `AVP, Finance — ${co}`],
-      ['Analyst Rating',    rating],
-      ['Chemistry Beta',    beta],
-      ['Sentiment',         sentiment],
-      ['Reply Probability', `${replyProb}% this week`],
-      ['HYROX Index',       `${hy}/100 — built for endurance`],
-      ['Underwriting Note', uw],
-      ['Insider Tip',       'Run due diligence: coffee with me.'],
-      ...addRows
-    ];
-    rows.forEach(([k,v])=>{
-      const tr=document.createElement('tr');
-      const td1=document.createElement('td'); td1.textContent=k;
-      const td2=document.createElement('td'); td2.textContent=v;
-      tr.appendChild(td1); tr.appendChild(td2);
-      table.appendChild(tr);
-    });
+    const table=document.createElement('table');table.className='report';
+    const rows=[['Role',`AVP, Finance — ${co}`],['Analyst Rating',rating],['Chemistry Beta',beta],['Sentiment',sentiment],
+      ['Reply Probability',`${replyProb}% this week`],['HYROX Index',`${hy}/100 — built for endurance`],['Underwriting Note',uw],
+      ['Insider Tip','Run due diligence: coffee with me.'],...addRows];
+    rows.forEach(([k,v])=>{const tr=document.createElement('tr');const td1=document.createElement('td');td1.textContent=k;
+      const td2=document.createElement('td');td2.textContent=v;tr.appendChild(td1);tr.appendChild(td2);table.appendChild(tr);});
     screen.appendChild(table);
-
-    const pa=document.createElement('div'); pa.className=paClass;
-    pa.textContent='Price Action:  '+sparkline(paIcon);
-    screen.appendChild(pa);
-
-    const msg=document.createElement('div'); msg.className=endMsgClass;
-    msg.style.marginTop='8px'; msg.textContent=endMsgText;
-    screen.appendChild(msg);
-
-    // Tyra GIF phase with resilient loader
-    if(phase==='tyra'){
-      const wrap=document.createElement('div'); wrap.className='gif-wrap';
-      const img=new Image(); img.alt="Tyra Banks: I was rooting for you!";
-      let i=0;
-      img.onload=()=> wrap.appendChild(img);
-      img.onerror=()=>{ if(++i < TYRA_GIF_URLS.length) img.src = TYRA_GIF_URLS[i]; };
-      img.src = TYRA_GIF_URLS[i];
-      screen.appendChild(wrap);
-    }
+    const pa=document.createElement('div');pa.className=paClass;pa.textContent='Price Action:  '+sparkline(paIcon);screen.appendChild(pa);
+    const msg=document.createElement('div');msg.className=endMsgClass;msg.style.marginTop='8px';msg.textContent=endMsgText;screen.appendChild(msg);
   }
 
-  function sparkline(icon){
-    const bars=['▁','▂','▃','▄','▅','▆','▇']; let out='';
-    for(let i=0;i<20;i++) out+=bars[(Math.random()*bars.length)|0];
-    return out+'  '+icon;
-  }
+  function sparkline(icon){const bars=['▁','▂','▃','▄','▅','▆','▇'];let out='';for(let i=0;i<20;i++)out+=bars[(Math.random()*bars.length)|0];return out+'  '+icon;}
 
   async function ticker(){
-    const phase=getPhase();
-    const cols=(innerWidth<380)?4:(innerWidth<430)?5:(innerWidth<520)?6:7;
-    const cellW=9;
-
-    const tokensBull=['$HOT','BUY','$WALT','$LUV','$DATE','$COFFEE','$ROI↑','$BETA1.8','$QTRWIN']; const emojisBull=['','🔥 ','💸 '];
-    const tokensCaut=['$HOT','HOLD','$AFK','$LATE','$DATE','$COFFEE','$ROI?','$BETA1.8','$QTR?']; const emojisCaut=['','⏳ ','⚠️ ','🥶 '];
-    const tokensWarn=['$HOT','WARN','$AFK','$LATE','$DATE','NOFILL','$DOWN?','$BETA1.8','$MISS']; const emojisWarn=['⚠️ ','⏳ ','',''];
-    const tokensTyra=['$HOT','SELL','AFK','LATE','NOFILL','DOWN','MISS','BYE']; const emojisTyra=['🛑 ','⚠️ ','',''];
-
+    const phase=getPhase();const cols=(innerWidth<380)?4:(innerWidth<430)?5:(innerWidth<520)?6:7;const cellW=9;
+    const tokensBull=['$HOT','BUY','$WALT','$LUV','$DATE','$COFFEE','$ROI↑','$BETA1.8','$QTRWIN'];const emojisBull=['','🔥 ','💸 '];
+    const tokensCaut=['$HOT','HOLD','$AFK','$LATE','$DATE','$COFFEE','$ROI?','$BETA1.8','$QTR?'];const emojisCaut=['','⏳ ','⚠️ ','🥶 '];
+    const tokensWarn=['$HOT','WARN','$AFK','$LATE','$DATE','NOFILL','$DOWN?','$BETA1.8','$MISS'];const emojisWarn=['⚠️ ','⏳ ','',''];
+    const tokensTyra=['$HOT','SELL','AFK','LATE','NOFILL','DOWN','MISS','BYE'];const emojisTyra=['🛑 ','⚠️ ','',''];
     let tok,emo,rowClass;
-    if(phase==='bullish'){ tok=tokensBull; emo=emojisBull; rowClass='green'; }
-    else if(phase==='cautious'){ tok=tokensCaut; emo=emojisCaut; rowClass='yellow'; }
-    else if(phase==='warning'){ tok=tokensWarn; emo=emojisWarn; rowClass='yellow'; }
-    else { tok=tokensTyra; emo=emojisTyra; rowClass='red'; }
-
-    for(let i=0;i<24;i++){
-      let rowTxt='';
-      for(let j=0;j<cols;j++){
-        const token=tok[Math.floor(Math.random()*tok.length)]||'$HOT';
-        const e=emo[Math.floor(Math.random()*emo.length)];
-        rowTxt+=(e+token).padEnd(cellW,' ')+' ';
-      }
-      const d=document.createElement('div'); d.className=rowClass;
-      d.textContent=rowTxt;
-      screen.appendChild(d);
-      await sleep(70);
-    }
+    if(phase==='bullish'){tok=tokensBull;emo=emojisBull;rowClass='green';}
+    else if(phase==='cautious'){tok=tokensCaut;emo=emojisCaut;rowClass='yellow';}
+    else if(phase==='warning'){tok=tokensWarn;emo=emojisWarn;rowClass='yellow';}
+    else{tok=tokensTyra;emo=emojisTyra;rowClass='red';}
+    for(let i=0;i<24;i++){let rowTxt='';for(let j=0;j<cols;j++){const token=tok[Math.floor(Math.random()*tok.length)]||'$HOT';
+      const e=emo[Math.floor(Math.random()*emo.length)];rowTxt+=(e+token).padEnd(cellW,' ')+' ';}const d=document.createElement('div');
+      d.className=rowClass;d.textContent=rowTxt;screen.appendChild(d);await sleep(70);}
   }
 
-  async function runOnce(){ header(); await showCats(); report(); await ticker(); }
-
-  document.getElementById('again').addEventListener('click', async ()=>{
-    term.classList.remove('shake'); void term.offsetWidth; term.classList.add('shake');
-    clearScreen(); await runOnce();
-    term.addEventListener('animationend',()=>term.classList.remove('shake'),{once:true});
-  });
-
-  document.getElementById('share').addEventListener('click', async ()=>{
-    const url=new URL(location.href);
-    url.searchParams.set('n',name); url.searchParams.set('co',co);
-    if(navigator.share){ await navigator.share({title:'Projections Terminal', url:url.toString()}); }
-    else if(navigator.clipboard){ await navigator.clipboard.writeText(url.toString()); alert('Link copied!'); }
-    else{ prompt('Copy link:', url.toString()); }
-  });
-
+  async function runOnce(){header();await showCats();report();await ticker();}
+  document.getElementById('again').addEventListener('click',async()=>{term.classList.remove('shake');void term.offsetWidth;term.classList.add('shake');
+    clearScreen();await runOnce();term.addEventListener('animationend',()=>term.classList.remove('shake'),{once:true});});
+  document.getElementById('share').addEventListener('click',async()=>{const url=new URL(location.href);url.searchParams.set('n',name);url.searchParams.set('co',co);
+    if(navigator.share)await navigator.share({title:'Projections Terminal',url:url.toString()});
+    else if(navigator.clipboard){await navigator.clipboard.writeText(url.toString());alert('Link copied!');}
+    else prompt('Copy link:',url.toString());});
   runOnce();
 })();
 </script>
