@@ -3,26 +3,26 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>🚨Flirtation Confirmation Terminal🚨</title>
+<title>Projections Terminal</title>
 <style>
   :root {
     --bg:#0b0b0c; --fg:#e8e8e8; --sub:#9aa0a6; --cyan:#00e5ff; --dc:#005b66;
     --mag:#ff8de3; --green:#7CFC00; --yellow:#ffe066; --red:#ff6961;
     --card:#151517; --border:#2a2a2e; --rowAlt:#151517;
   }
-  html,body {
+  html,body{
     margin:0; background:var(--bg); color:var(--fg);
     font:clamp(12px,2.7vw,16px)/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
     overflow-x:hidden;
   }
-  .term { max-width:640px; margin:0 auto; padding:18px }
-  .bar { color:var(--cyan) }
-  .sep { color:var(--dc) }
+  .term{ max-width:640px; margin:0 auto; padding:18px }
+  .bar{ color:var(--cyan) }
+  .sep{ color:var(--dc) }
 
-  table.report { width:100%; border-collapse:collapse; margin:12px 0; }
-  table.report tr:nth-child(even){ background:var(--rowAlt); }
-  table.report td{ padding:4px 4px; vertical-align:top; }
-  table.report td:first-child{ color:var(--mag); white-space:nowrap; padding-right:.75em; }
+  table.report{ width:100%; border-collapse:collapse; margin:12px 0 }
+  table.report tr:nth-child(even){ background:var(--rowAlt) }
+  table.report td{ padding:4px 4px; vertical-align:top }
+  table.report td:first-child{ color:var(--mag); white-space:nowrap; padding-right:.75em }
   table.report td:last-child{ color:var(--fg) }
 
   .yellow{ color:var(--yellow) }
@@ -33,16 +33,16 @@
   .btns{ margin-top:14px; display:flex; gap:8px; flex-wrap:wrap }
   button{
     background:var(--card); color:#fff; border:1px solid var(--border);
-    padding:9px 11px; border-radius:9px; font:inherit; cursor:pointer; min-width:96px;
+    padding:9px 11px; border-radius:9px; font:inherit; cursor:pointer; min-width:96px
   }
   button:active{ transform:translateY(1px) }
 
   .center{ display:flex; align-items:center; justify-content:center; min-height:120px }
   .cat{ white-space:pre; line-height:1.05 }
   .spin{ display:inline-block; transform-origin:center center;
-         -webkit-animation:spin 1.2s linear infinite; animation:spin 1.2s linear infinite; }
+         -webkit-animation:spin 1.2s linear infinite; animation:spin 1.2s linear infinite }
   .shake{ -webkit-animation:shake .42s cubic-bezier(.36,.07,.19,.97) both;
-          animation:shake .42s cubic-bezier(.36,.07,.19,.97) both; }
+          animation:shake .42s cubic-bezier(.36,.07,.19,.97) both }
 
   @-webkit-keyframes spin{from{-webkit-transform:rotate(0)}to{-webkit-transform:rotate(360deg)}}
   @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
@@ -62,8 +62,8 @@
     table.report td:last-child{ padding-left:1em }
   }
 
-  .gif-wrap { margin-top:10px; display:flex; justify-content:center; }
-  .gif-wrap img { max-width:100%; border-radius:8px; border:1px solid var(--border); }
+  .gif-wrap{ margin-top:10px; display:flex; justify-content:center }
+  .gif-wrap img{ max-width:100%; border-radius:8px; border:1px solid var(--border) }
 </style>
 </head>
 <body>
@@ -77,31 +77,31 @@
     <button id="share">Share</button>
   </div>
   <div class="sub" style="margin-top:10px">
-    Tip: add <code>?v=12</code> to bust cache. Test phases with <code>?phase=warning</code> or <code>?phase=tyra</code>. Use <code>?reset=1</code> to re-arm first-visit mode.
+    Tip: add <code>?v=15</code> to bust cache. Test with <code>?phase=bullish|cautious|warning|tyra</code>. Use <code>?reset=1</code> to re-arm first-visit mode (device-local).
   </div>
 </div>
 
 <script>
 (() => {
-  // ===== personalize defaults (override with ?n=&co=) =====
+  // Personalization from query
   const defaults={n:"Walter",co:"Life Insurance Co."};
   const qs=new URLSearchParams(location.search);
   const name=qs.get('n')||defaults.n;
   const co=qs.get('co')||defaults.co;
 
-  // ===== schedule (America/Chicago) =====
+  // Schedule (America/Chicago)
   const TZ='America/Chicago';
   const chicagoNow=()=> new Date(new Date().toLocaleString('en-US',{timeZone:TZ}));
   function chicagoTomorrowAt3(){
     const n=chicagoNow();
     const t=new Date(n.getFullYear(),n.getMonth(),n.getDate(),15,0,0);
-    t.setDate(t.getDate()+1); // explicit "tomorrow"
+    t.setDate(t.getDate()+1); // explicit "tomorrow at 3pm CT"
     return t;
   }
   const T1=chicagoTomorrowAt3();               // flip to warning
   const T2=new Date(T1.getTime()+48*3600*1000); // +48h Tyra
 
-  // ===== visit memory (first visit bullish; repeats cautious) =====
+  // First-visit memory (bullish once per device)
   const VISIT_KEY='pt_visitCount_v1';
   if(qs.get('reset')==='1'){ try{ localStorage.removeItem(VISIT_KEY); }catch(e){} }
   let visitCount=0;
@@ -109,7 +109,7 @@
   const isFirstVisit = visitCount===0;
   try{ localStorage.setItem(VISIT_KEY, String(visitCount+1)); }catch(e){}
 
-  // ===== DOM =====
+  // DOM
   const term=document.getElementById('term');
   const title=document.getElementById('title');
   const sep=document.getElementById('sep');
@@ -128,7 +128,7 @@
   }
   function clearScreen(){ screen.innerHTML=''; }
 
-  // spinny cat
+  // Spinny cat
   const catArt=` /\\_/\\  \n( o.o ) \n > ^ < `;
   async function showCats(){
     clearScreen();
@@ -140,67 +140,115 @@
     await sleep(1000); clearScreen();
   }
 
-  // helpers
+  // Helpers
   const rndInt=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
   const rndBeta=()=> (rndInt(16,19)/10).toFixed(2); // 1.6–1.9
   const rndHyrox=()=> rndInt(86,100);               // 86–100
 
+  // Phase logic (+ test override)
   function getPhase(){
-    const override=qs.get('phase');  // TEST OVERRIDE
-    if(override) return override;
+    const override=qs.get('phase'); if(override) return override;
     const nowC=chicagoNow();
     if(nowC>=T2) return 'tyra';
     if(nowC>=T1) return 'warning';
     return isFirstVisit ? 'bullish' : 'cautious';
   }
 
-  // Local Tyra GIF in your repo
-  const TYRA_GIF_URL = './tyra1.gif';
+  // Robust Tyra GIF loading (local first, fallback if needed)
+  const localDir = location.pathname.replace(/[^\/]+$/, ''); // e.g. "/projection/"
+  const TYRA_GIF_URLS = [
+    `${localDir}tyra.gif?v=${Date.now()}`,                                   // local with cache-bust
+    'https://media.giphy.com/media/3oz8xKaR836UJOYeOc/giphy.gif'             // fallback
+  ];
 
   function report(){
-    let phase=getPhase();
+    const phase=getPhase();
     const beta=rndBeta(), hy=rndHyrox();
+
     let rating,sentiment,replyProb,uwNotes,paClass,paIcon,endMsgClass,endMsgText,addRows=[];
-    if(phase==='bullish'){ rating='STRONG BUY  ❤️'; sentiment='Ultra Bullish'; replyProb=rndInt(70,95);
+    if(phase==='bullish'){
+      rating='STRONG BUY  ❤️'; sentiment='Ultra Bullish'; replyProb=rndInt(70,95);
       uwNotes=['Premium waived for clever banter.','Dividend payout in smiles upon reply.','Policyholder owes one coffee date for compliance.','Projected synergy high; follow-up recommended.'];
       paClass='green'; paIcon='📈'; endMsgClass='yellow'; endMsgText=`✨ ${name}, don't keep me waiting — I'm free next week. ✨`;
-    } else if(phase==='cautious'){ rating='HOLD — under review'; sentiment='Cautiously bearish'; replyProb=rndInt(20,65);
+    }else if(phase==='cautious'){
+      rating='HOLD — under review'; sentiment='Cautiously bearish'; replyProb=rndInt(20,65);
       uwNotes=['Policy lapse risk rises with poor communication.','Premium waived for clever banter (pending response).','Premium discount applied for admission of blushing.','Compliance flag: response time trending long.'];
       paClass='yellow'; paIcon='⚠️'; endMsgClass='red'; endMsgText='Note: response time trending bearish — upgrade recommended.'; addRows.push(['Disappointment Indicator','Elevated']);
-    } else if(phase==='warning'){ rating='HOLD — warning flag'; sentiment='Bearish drift'; replyProb=rndInt(10,45);
+    }else if(phase==='warning'){
+      rating='HOLD — warning flag'; sentiment='Bearish drift'; replyProb=rndInt(10,45);
       uwNotes=['Communication gap widening; risk premium applied.','Escalation threshold approaching.','Underwriter requests evidence of effort.','Signal-to-noise ratio deteriorating.'];
       paClass='yellow'; paIcon='⚠️'; endMsgClass='red'; endMsgText='Warning: prolonged silence impacting outlook.'; addRows.push(['Disappointment Indicator','High']);
-    } else { rating='SELL — sentiment break'; sentiment='Decisively bearish'; replyProb=rndInt(0,25);
+    }else{ // tyra
+      rating='SELL — sentiment break'; sentiment='Decisively bearish'; replyProb=rndInt(0,25);
       uwNotes=['Position closed due to extended non-response.','Confidence interval breached.','Liquidity evaporated; reallocating attention.','Final reminder issued; no fill.'];
       paClass='red'; paIcon='🛑'; endMsgClass='red'; endMsgText='We were rooting for you. We were ALL rooting for you.'; addRows.push(['Disappointment Indicator','Critical']);
     }
 
     const uw=uwNotes[(Math.random()*uwNotes.length)|0];
+
     const table=document.createElement('table'); table.className='report';
-    const rows=[['Role',`AVP, Finance — ${co}`],['Analyst Rating',rating],['Chemistry Beta',beta],['Sentiment',sentiment],
-      ['Reply Probability',`${replyProb}% this week`],['HYROX Index',`${hy}/100 — built for endurance`],['Underwriting Note',uw],
-      ['Insider Tip','Run due diligence: coffee with me.'],...addRows];
-    rows.forEach(([k,v])=>{const tr=document.createElement('tr');const td1=document.createElement('td');td1.textContent=k;
-      const td2=document.createElement('td');td2.textContent=v;tr.appendChild(td1);tr.appendChild(td2);table.appendChild(tr);});
+    const rows=[
+      ['Role',              `AVP, Finance — ${co}`],
+      ['Analyst Rating',    rating],
+      ['Chemistry Beta',    beta],
+      ['Sentiment',         sentiment],
+      ['Reply Probability', `${replyProb}% this week`],
+      ['HYROX Index',       `${hy}/100 — built for endurance`],
+      ['Underwriting Note', uw],
+      ['Insider Tip',       'Run due diligence: coffee with me.'],
+      ...addRows
+    ];
+    rows.forEach(([k,v])=>{
+      const tr=document.createElement('tr');
+      const td1=document.createElement('td'); td1.textContent=k;
+      const td2=document.createElement('td'); td2.textContent=v;
+      tr.appendChild(td1); tr.appendChild(td2);
+      table.appendChild(tr);
+    });
     screen.appendChild(table);
-    const pa=document.createElement('div'); pa.className=paClass; pa.textContent='Price Action:  '+sparkline(paIcon); screen.appendChild(pa);
-    const msg=document.createElement('div'); msg.className=endMsgClass; msg.style.marginTop='8px'; msg.textContent=endMsgText; screen.appendChild(msg);
-    if(phase==='tyra'){const wrap=document.createElement('div'); wrap.className='gif-wrap'; const img=new Image(); img.src=TYRA_GIF_URL; img.alt="Tyra Banks: I was rooting for you!"; wrap.appendChild(img); screen.appendChild(wrap);}
+
+    const pa=document.createElement('div'); pa.className=paClass;
+    pa.textContent='Price Action:  '+sparkline(paIcon);
+    screen.appendChild(pa);
+
+    const msg=document.createElement('div'); msg.className=endMsgClass;
+    msg.style.marginTop='8px'; msg.textContent=endMsgText;
+    screen.appendChild(msg);
+
+    // Tyra GIF phase with resilient loader
+    if(phase==='tyra'){
+      const wrap=document.createElement('div'); wrap.className='gif-wrap';
+      const img=new Image(); img.alt="Tyra Banks: I was rooting for you!";
+      let i=0;
+      img.onload=()=> wrap.appendChild(img);
+      img.onerror=()=>{ if(++i < TYRA_GIF_URLS.length) img.src = TYRA_GIF_URLS[i]; };
+      img.src = TYRA_GIF_URLS[i];
+      screen.appendChild(wrap);
+    }
   }
 
-  function sparkline(icon){const bars=['▁','▂','▃','▄','▅','▆','▇'];let out='';for(let i=0;i<20;i++)out+=bars[(Math.random()*bars.length)|0];return out+'  '+icon;}
+  function sparkline(icon){
+    const bars=['▁','▂','▃','▄','▅','▆','▇']; let out='';
+    for(let i=0;i<20;i++) out+=bars[(Math.random()*bars.length)|0];
+    return out+'  '+icon;
+  }
 
   async function ticker(){
-    const phase=getPhase(); const cols=(innerWidth<380)?4:(innerWidth<430)?5:(innerWidth<520)?6:7; const cellW=9;
+    const phase=getPhase();
+    const cols=(innerWidth<380)?4:(innerWidth<430)?5:(innerWidth<520)?6:7;
+    const cellW=9;
+
     const tokensBull=['$HOT','BUY','$WALT','$LUV','$DATE','$COFFEE','$ROI↑','$BETA1.8','$QTRWIN']; const emojisBull=['','🔥 ','💸 '];
     const tokensCaut=['$HOT','HOLD','$AFK','$LATE','$DATE','$COFFEE','$ROI?','$BETA1.8','$QTR?']; const emojisCaut=['','⏳ ','⚠️ ','🥶 '];
     const tokensWarn=['$HOT','WARN','$AFK','$LATE','$DATE','NOFILL','$DOWN?','$BETA1.8','$MISS']; const emojisWarn=['⚠️ ','⏳ ','',''];
     const tokensTyra=['$HOT','SELL','AFK','LATE','NOFILL','DOWN','MISS','BYE']; const emojisTyra=['🛑 ','⚠️ ','',''];
+
     let tok,emo,rowClass;
-    if(phase==='bullish'){tok=tokensBull;emo=emojisBull;rowClass='green';}
-    else if(phase==='cautious'){tok=tokensCaut;emo=emojisCaut;rowClass='yellow';}
-    else if(phase==='warning'){tok=tokensWarn;emo=emojisWarn;rowClass='yellow';}
-    else{tok=tokensTyra;emo=emojisTyra;rowClass='red';}
+    if(phase==='bullish'){ tok=tokensBull; emo=emojisBull; rowClass='green'; }
+    else if(phase==='cautious'){ tok=tokensCaut; emo=emojisCaut; rowClass='yellow'; }
+    else if(phase==='warning'){ tok=tokensWarn; emo=emojisWarn; rowClass='yellow'; }
+    else { tok=tokensTyra; emo=emojisTyra; rowClass='red'; }
+
     for(let i=0;i<24;i++){
       let rowTxt='';
       for(let j=0;j<cols;j++){
@@ -208,7 +256,10 @@
         const e=emo[Math.floor(Math.random()*emo.length)];
         rowTxt+=(e+token).padEnd(cellW,' ')+' ';
       }
-      const d=document.createElement('div'); d.className=rowClass; d.textContent=rowTxt; screen.appendChild(d); await sleep(70);
+      const d=document.createElement('div'); d.className=rowClass;
+      d.textContent=rowTxt;
+      screen.appendChild(d);
+      await sleep(70);
     }
   }
 
@@ -221,13 +272,14 @@
   });
 
   document.getElementById('share').addEventListener('click', async ()=>{
-    const url=new URL(location.href); url.searchParams.set('n',name); url.searchParams.set('co',co);
+    const url=new URL(location.href);
+    url.searchParams.set('n',name); url.searchParams.set('co',co);
     if(navigator.share){ await navigator.share({title:'Projections Terminal', url:url.toString()}); }
     else if(navigator.clipboard){ await navigator.clipboard.writeText(url.toString()); alert('Link copied!'); }
     else{ prompt('Copy link:', url.toString()); }
   });
 
-  header(); runOnce();
+  runOnce();
 })();
 </script>
 </body>
