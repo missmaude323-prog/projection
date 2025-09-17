@@ -79,7 +79,7 @@
     <button id="share">Share</button>
   </div>
   <div class="sub" style="margin-top:10px">
-    Tip: add <code>?v=19</code> to bust cache. Test with <code>?phase=bullish|cautious|warn1|warn2|final</code>. Use <code>?reset=1</code> to reset first-visit + timeline.
+    Tip: add <code>?v=20</code> to bust cache. Test with <code>?phase=bullish|cautious|warn1|warn2|final</code>. Use <code>?reset=1</code> to reset first-visit + timeline.
   </div>
 </div>
 
@@ -88,7 +88,7 @@
   // ---------- TUNABLE SPEED CONSTANTS ----------
   const HOURS_WARN1 = 4;   // after 4h → Warn 1
   const HOURS_WARN2 = 12;  // after 12h → Warn 2
-  const HOURS_FINAL = 24;  // after 24h → Final ("tut tut")
+  const HOURS_FINAL = 24;  // after 24h → Final ("tut tut" — owes you)
   // --------------------------------------------
 
   // Personalization from query
@@ -224,20 +224,22 @@
       endMsgClass='red'; endMsgText='Tut-tut. You’re on thin ice — impress me to earn it back.';
       addRows.push(['Disappointment Indicator','Very High']);
     }
-    else { // final (soft-dom brat close, not a deal breaker)
-      rating='SELL — sentiment under review';
-      sentiment='Playful adjudication';
-      replyProb=rndInt(5,30);
-      uwNotes=[
-        'Market patience exhausted — corrective action required.',
-        'Silent treatment detected; compliance required for re-entry.',
-        'Confidence trimmed; performance bonus now required.',
-        'Position remains open to redemption.'
+    else { // final (soft-dom brat close, playful not punitive)
+      rating = 'SELL — rally opportunity';
+      sentiment = 'Bratty but intrigued';
+      replyProb = rndInt(5, 30);
+      uwNotes = [
+        'Position not closed — pending creative restitution.',
+        'Corrective action required, but upside remains.',
+        'Attention reallocation delayed in anticipation of a rally.',
+        'Expecting charm offensive to recover rating.'
       ];
-      paClass='red'; paIcon='🛑';
-      endMsgClass='red';
-      endMsgText=`Tut, tut. Not a deal breaker — but now you owe me. Make it up to me.`;
-      addRows.push(['Dominance Index','Critical — Awaiting Compliance']);
+      paClass = 'red';
+      paIcon = '🛑';
+      endMsgClass = 'red';
+      endMsgText = `Tut, tut. It's been a full market day — now you officially owe me. 
+                    How you make it up to me is entirely up to you.`;
+      addRows.push(['Dominance Index','Critical — Playfully Awaiting Compliance']);
       addRows.push(['Disappointment Indicator','Critical']);
     }
 
