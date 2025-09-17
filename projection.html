@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title> 🚨Flirtation Confirmation Terminal🚨</title>
+<title>🚨Flirtation Confirmation Terminal🚨</title>
 <style>
   :root {
     --bg:#0b0b0c; --fg:#e8e8e8; --sub:#9aa0a6; --cyan:#00e5ff; --dc:#005b66;
@@ -77,35 +77,39 @@
     <button id="share">Share</button>
   </div>
   <div class="sub" style="margin-top:10px">
-    Tip: add <code>?v=11</code> to bust cache. Test phases with <code>?phase=warning</code> or <code>?phase=tyra</code>.
+    Tip: add <code>?v=12</code> to bust cache. Test phases with <code>?phase=warning</code> or <code>?phase=tyra</code>. Use <code>?reset=1</code> to re-arm first-visit mode.
   </div>
 </div>
 
 <script>
 (() => {
+  // ===== personalize defaults (override with ?n=&co=) =====
   const defaults={n:"Walter",co:"Life Insurance Co."};
   const qs=new URLSearchParams(location.search);
   const name=qs.get('n')||defaults.n;
   const co=qs.get('co')||defaults.co;
 
+  // ===== schedule (America/Chicago) =====
   const TZ='America/Chicago';
   const chicagoNow=()=> new Date(new Date().toLocaleString('en-US',{timeZone:TZ}));
   function chicagoTomorrowAt3(){
     const n=chicagoNow();
     const t=new Date(n.getFullYear(),n.getMonth(),n.getDate(),15,0,0);
-    t.setDate(t.getDate()+1);
+    t.setDate(t.getDate()+1); // explicit "tomorrow"
     return t;
   }
-  const T1=chicagoTomorrowAt3();
-  const T2=new Date(T1.getTime()+48*3600*1000);
+  const T1=chicagoTomorrowAt3();               // flip to warning
+  const T2=new Date(T1.getTime()+48*3600*1000); // +48h Tyra
 
+  // ===== visit memory (first visit bullish; repeats cautious) =====
   const VISIT_KEY='pt_visitCount_v1';
-  if(qs.get('reset')==='1'){ try{localStorage.removeItem(VISIT_KEY);}catch(e){} }
+  if(qs.get('reset')==='1'){ try{ localStorage.removeItem(VISIT_KEY); }catch(e){} }
   let visitCount=0;
   try{ visitCount=parseInt(localStorage.getItem(VISIT_KEY)||'0',10)||0; }catch(e){}
-  const isFirstVisit=visitCount===0;
-  try{ localStorage.setItem(VISIT_KEY,String(visitCount+1)); }catch(e){}
+  const isFirstVisit = visitCount===0;
+  try{ localStorage.setItem(VISIT_KEY, String(visitCount+1)); }catch(e){}
 
+  // ===== DOM =====
   const term=document.getElementById('term');
   const title=document.getElementById('title');
   const sep=document.getElementById('sep');
@@ -124,6 +128,7 @@
   }
   function clearScreen(){ screen.innerHTML=''; }
 
+  // spinny cat
   const catArt=` /\\_/\\  \n( o.o ) \n > ^ < `;
   async function showCats(){
     clearScreen();
@@ -135,22 +140,22 @@
     await sleep(1000); clearScreen();
   }
 
+  // helpers
   const rndInt=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
-  const rndBeta=()=> (rndInt(16,19)/10).toFixed(2);
-  const rndHyrox=()=> rndInt(86,100);
+  const rndBeta=()=> (rndInt(16,19)/10).toFixed(2); // 1.6–1.9
+  const rndHyrox=()=> rndInt(86,100);               // 86–100
 
   function getPhase(){
-    let phase;
-    const override=qs.get('phase');
-    if(override){ return override; } // *** TEST OVERRIDE ***
+    const override=qs.get('phase');  // TEST OVERRIDE
+    if(override) return override;
     const nowC=chicagoNow();
-    if(nowC>=T2) phase='tyra';
-    else if(nowC>=T1) phase='warning';
-    else phase=isFirstVisit?'bullish':'cautious';
-    return phase;
+    if(nowC>=T2) return 'tyra';
+    if(nowC>=T1) return 'warning';
+    return isFirstVisit ? 'bullish' : 'cautious';
   }
 
-  const TYRA_GIF_URL='https://media.giphy.com/media/3oz8xKaR836UJOYeOc/giphy.gif';
+  // Local Tyra GIF in your repo
+  const TYRA_GIF_URL = './tyra.gif';
 
   function report(){
     let phase=getPhase();
@@ -180,7 +185,7 @@
     screen.appendChild(table);
     const pa=document.createElement('div'); pa.className=paClass; pa.textContent='Price Action:  '+sparkline(paIcon); screen.appendChild(pa);
     const msg=document.createElement('div'); msg.className=endMsgClass; msg.style.marginTop='8px'; msg.textContent=endMsgText; screen.appendChild(msg);
-    if(phase==='tyra'){const wrap=document.createElement('div'); wrap.className='gif-wrap'; const img=new Image(); img.src=TYRA_GIF_URL; wrap.appendChild(img); screen.appendChild(wrap);}
+    if(phase==='tyra'){const wrap=document.createElement('div'); wrap.className='gif-wrap'; const img=new Image(); img.src=TYRA_GIF_URL; img.alt="Tyra Banks: I was rooting for you!"; wrap.appendChild(img); screen.appendChild(wrap);}
   }
 
   function sparkline(icon){const bars=['▁','▂','▃','▄','▅','▆','▇'];let out='';for(let i=0;i<20;i++)out+=bars[(Math.random()*bars.length)|0];return out+'  '+icon;}
@@ -196,19 +201,33 @@
     else if(phase==='cautious'){tok=tokensCaut;emo=emojisCaut;rowClass='yellow';}
     else if(phase==='warning'){tok=tokensWarn;emo=emojisWarn;rowClass='yellow';}
     else{tok=tokensTyra;emo=emojisTyra;rowClass='red';}
-    for(let i=0;i<24;i++){let rowTxt='';for(let j=0;j<cols;j++){const token=tok[Math.floor(Math.random()*tok.length)]||'$HOT';
-      const e=emo[Math.floor(Math.random()*emo.length)];rowTxt+=(e+token).padEnd(cellW,' ')+' ';}const d=document.createElement('div');
-      d.className=rowClass;d.textContent=rowTxt;screen.appendChild(d);await sleep(70);}
+    for(let i=0;i<24;i++){
+      let rowTxt='';
+      for(let j=0;j<cols;j++){
+        const token=tok[Math.floor(Math.random()*tok.length)]||'$HOT';
+        const e=emo[Math.floor(Math.random()*emo.length)];
+        rowTxt+=(e+token).padEnd(cellW,' ')+' ';
+      }
+      const d=document.createElement('div'); d.className=rowClass; d.textContent=rowTxt; screen.appendChild(d); await sleep(70);
+    }
   }
 
-  async function runOnce(){header();await showCats();report();await ticker();}
-  document.getElementById('again').addEventListener('click',async()=>{term.classList.remove('shake');void term.offsetWidth;term.classList.add('shake');
-    clearScreen();await runOnce();term.addEventListener('animationend',()=>term.classList.remove('shake'),{once:true});});
-  document.getElementById('share').addEventListener('click',async()=>{const url=new URL(location.href);url.searchParams.set('n',name);url.searchParams.set('co',co);
-    if(navigator.share)await navigator.share({title:'Projections Terminal',url:url.toString()});
-    else if(navigator.clipboard){await navigator.clipboard.writeText(url.toString());alert('Link copied!');}
-    else prompt('Copy link:',url.toString());});
-  header();runOnce();
+  async function runOnce(){ header(); await showCats(); report(); await ticker(); }
+
+  document.getElementById('again').addEventListener('click', async ()=>{
+    term.classList.remove('shake'); void term.offsetWidth; term.classList.add('shake');
+    clearScreen(); await runOnce();
+    term.addEventListener('animationend',()=>term.classList.remove('shake'),{once:true});
+  });
+
+  document.getElementById('share').addEventListener('click', async ()=>{
+    const url=new URL(location.href); url.searchParams.set('n',name); url.searchParams.set('co',co);
+    if(navigator.share){ await navigator.share({title:'Projections Terminal', url:url.toString()}); }
+    else if(navigator.clipboard){ await navigator.clipboard.writeText(url.toString()); alert('Link copied!'); }
+    else{ prompt('Copy link:', url.toString()); }
+  });
+
+  header(); runOnce();
 })();
 </script>
 </body>
