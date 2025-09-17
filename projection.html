@@ -24,7 +24,7 @@
   table.report tr:nth-child(even){ background:var(--rowAlt); }
   table.report td{ padding:4px 4px; vertical-align:top; }
   table.report td:first-child{ color:var(--mag); white-space:nowrap; padding-right:.75em; }
-  table.report td:last-child{ color:var(--fg); }
+  table.report td:last-child{ color:var(--fg) }
 
   .yellow{ color:var(--yellow) }
   .green{ color:var(--green) }
@@ -74,16 +74,19 @@
     <button id="again">Run again</button>
     <button id="share">Share</button>
   </div>
-  <div class="sub" style="margin-top:10px">Tip: add <code>?v=9</code> to URL to bust cache.</div>
+  <div class="sub" style="margin-top:10px">
+    Tip: add <code>?v=10</code> to bust cache. Add <code>?reset=1</code> to see first-visit mode again (on your device only).
+  </div>
 </div>
 
 <script>
 (() => {
-  // personalize defaults (override with ?n=&co=)
+  // ===== personalize defaults (override with ?n=&co=) =====
   const defaults={n:"Walter",co:"Life Insurance Co."};
   const qs=new URLSearchParams(location.search);
   const name=qs.get('n')||defaults.n;
   const co=qs.get('co')||defaults.co;
+  // ========================================================
 
   const term=document.getElementById('term');
   const title=document.getElementById('title');
@@ -92,6 +95,14 @@
   const screen=document.getElementById('screen');
   const again=document.getElementById('again');
   const share=document.getElementById('share');
+
+  // --- visit memory (first visit = bullish, later = cautious) ---
+  const VISIT_KEY='pt_visitCount_v1';
+  if (qs.get('reset')==='1') { try { localStorage.removeItem(VISIT_KEY); } catch(e){} }
+  let visitCount=0;
+  try { visitCount = parseInt(localStorage.getItem(VISIT_KEY)||'0',10) || 0; } catch(e){ visitCount=0; }
+  const isFirstVisit = visitCount===0;
+  try { localStorage.setItem(VISIT_KEY, String(visitCount+1)); } catch(e){}
 
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   const pad=n=>(''+n).padStart(2,'0');
@@ -105,11 +116,13 @@
   }
   function clearScreen(){ screen.innerHTML=''; }
 
+  // spinny cat
   const catArt=` /\\_/\\  \n( o.o ) \n > ^ < `;
   async function showCats(){
     clearScreen();
     const wrap=document.createElement('div'); wrap.className='center';
-    const msg=document.createElement('div'); msg.className='yellow'; msg.textContent='🐱 Spinning up market data...';
+    const msg=document.createElement('div'); msg.className='yellow';
+    msg.textContent='🐱 Spinning up market data...';
     const cat=document.createElement('pre'); cat.className='cat spin'; cat.textContent=catArt;
     wrap.appendChild(msg); wrap.appendChild(cat); screen.appendChild(wrap);
     await sleep(1200); clearScreen();
@@ -120,30 +133,41 @@
   const rndBeta=()=> (rndInt(16,19)/10).toFixed(2); // 1.6–1.9
   const rndHyrox=()=> rndInt(86,100);               // 86–100
 
-  function sparkline(){
+  function sparkline(icon){
     const bars=['▁','▂','▃','▄','▅','▆','▇']; let out='';
     for(let i=0;i<20;i++) out+=bars[(Math.random()*bars.length)|0];
-    return out+'  ⚠️';
+    return out+'  '+icon;
   }
 
   function report(){
     const beta=rndBeta();
-    const replyProb=rndInt(20,65);           // cooler outlook
     const hy=rndHyrox();
-    const notes=[
+
+    // Mode-specific fields
+    const mode = isFirstVisit ? 'bullish' : 'cautious';
+    const rating   = mode==='bullish' ? 'STRONG BUY  ❤️' : 'HOLD — under review';
+    const sentiment= mode==='bullish' ? 'Ultra Bullish' : 'Cautiously bearish';
+    const replyProb= mode==='bullish' ? rndInt(70,95) : rndInt(20,65); // first-time looks good, later is cooler
+    const notesBull=[
+      'Premium waived for clever banter.',
+      'Dividend payout in smiles upon reply.',
+      'Policyholder owes one coffee date for compliance.',
+      'Projected synergy high; follow-up recommended.'
+    ];
+    const notesCool=[
       'Policy lapse risk rises with poor communication.',
       'Premium waived for clever banter (pending response).',
       'Premium discount applied for admission of blushing.',
       'Compliance flag: response time trending long.'
     ];
-    const uw=notes[(Math.random()*notes.length)|0];
+    const uw = (mode==='bullish' ? notesBull : notesCool)[(Math.random()*4)|0];
 
     const table=document.createElement('table'); table.className='report';
     [
       ['Role',              `AVP, Finance — ${co}`],
-      ['Analyst Rating',    'HOLD — under review'],
+      ['Analyst Rating',    rating],
       ['Chemistry Beta',    beta],
-      ['Sentiment',         'Cautiously bearish'],
+      ['Sentiment',         sentiment],
       ['Reply Probability', `${replyProb}% this week`],
       ['HYROX Index',       `${hy}/100 — built for endurance`],
       ['Underwriting Note', uw],
@@ -156,17 +180,24 @@
     });
     screen.appendChild(table);
 
-    const pa=document.createElement('div'); pa.className='yellow';
-    pa.textContent='Price Action:  '+sparkline();
+    const pa=document.createElement('div');
+    pa.className= isFirstVisit ? 'green' : 'yellow';
+    pa.textContent='Price Action:  '+sparkline(isFirstVisit ? '📈' : '⚠️');
     screen.appendChild(pa);
 
-    const msg=document.createElement('div'); msg.className='red';
+    const msg=document.createElement('div');
     msg.style.marginTop='8px';
-    msg.textContent=`Note: response time trending bearish — upgrade recommended.`;
+    if (isFirstVisit) {
+      msg.className='yellow';
+      msg.textContent=`✨ ${name}, don't keep me waiting — I'm free next week. ✨`;
+    } else {
+      msg.className='red';
+      msg.textContent=`Note: response time trending bearish — upgrade recommended.`;
+    }
     screen.appendChild(msg);
   }
 
-  // ticker (spaced cells, cooler tone)
+  // ticker (mode changes tone)
   function tickerCols(){
     const w=innerWidth;
     if(w<380) return 4; if(w<430) return 5; if(w<520) return 6; return 7;
@@ -174,16 +205,25 @@
   async function ticker(){
     const cols=tickerCols();
     const cellW=9;
-    const tokens=['$HOT','HOLD','$AFK','$LATE','$DATE','$COFFEE','$ROI?','$BETA1.8','$QTR?'];
-    const emojiPool=['','⏳ ','⚠️ ','🥶 '];
+
+    const tokensBull=['$HOT','BUY','$WALT','$LUV','$DATE','$COFFEE','$ROI↑','$BETA1.8','$QTRWIN'];
+    const emojisBull=['','🔥 ','💸 '];
+
+    const tokensCool=['$HOT','HOLD','$AFK','$LATE','$DATE','$COFFEE','$ROI?','$BETA1.8','$QTR?'];
+    const emojisCool=['','⏳ ','⚠️ ','🥶 '];
+
+    const tok = isFirstVisit ? tokensBull : tokensCool;
+    const emo = isFirstVisit ? emojisBull : emojisCool;
+
     for(let i=0;i<24;i++){
       let rowTxt='';
       for(let j=0;j<cols;j++){
-        const token=tokens[Math.floor(Math.random()*tokens.length)] || 'HOLD';
-        const emo=emojiPool[Math.floor(Math.random()*emojiPool.length)];
-        rowTxt+=(emo+token).padEnd(cellW,' ')+' ';
+        const token=tok[Math.floor(Math.random()*tok.length)] || '$HOT';
+        const e=emo[Math.floor(Math.random()*emo.length)];
+        rowTxt+=(e+token).padEnd(cellW,' ')+' ';
       }
-      const d=document.createElement('div'); d.className='yellow';
+      const d=document.createElement('div');
+      d.className = isFirstVisit ? 'green' : 'yellow';
       d.textContent=rowTxt;
       screen.appendChild(d);
       await sleep(70);
@@ -200,13 +240,15 @@
     window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
   });
 
-  // share
+  // share (keeps current personalization)
   share.addEventListener('click', async ()=>{
     const url=new URL(location.href);
     url.searchParams.set('n',name); url.searchParams.set('co',co);
-    if(navigator.share){ await navigator.share({title:'Projections Terminal', url:url.toString()}); }
-    else if(navigator.clipboard){ await navigator.clipboard.writeText(url.toString()); alert('Link copied!'); }
-    else{ prompt('Copy link:', url.toString()); }
+    try{
+      if(navigator.share){ await navigator.share({title:'Projections Terminal', url:url.toString()}); }
+      else if(navigator.clipboard){ await navigator.clipboard.writeText(url.toString()); alert('Link copied!'); }
+      else{ prompt('Copy link:', url.toString()); }
+    }catch(e){ alert('Could not share: '+e); }
   });
 
   header(); runOnce();
