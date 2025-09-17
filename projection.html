@@ -7,8 +7,8 @@
 <style>
   :root {
     --bg:#0b0b0c; --fg:#e8e8e8; --sub:#9aa0a6; --cyan:#00e5ff; --dc:#005b66;
-    --mag:#ff8de3; --green:#7CFC00; --yellow:#ffe066; --card:#151517; --border:#2a2a2e;
-    --rowAlt:#151517;
+    --mag:#ff8de3; --green:#7CFC00; --yellow:#ffe066; --red:#ff6961;
+    --card:#151517; --border:#2a2a2e; --rowAlt:#151517;
   }
   html,body {
     margin:0; background:var(--bg); color:var(--fg);
@@ -19,7 +19,7 @@
   .bar { color:var(--cyan) }
   .sep { color:var(--dc) }
 
-  /* Report table formatting */
+  /* Report table */
   table.report { width:100%; border-collapse:collapse; margin:12px 0; }
   table.report tr:nth-child(even){ background:var(--rowAlt); }
   table.report td{ padding:4px 4px; vertical-align:top; }
@@ -28,6 +28,7 @@
 
   .yellow{ color:var(--yellow) }
   .green{ color:var(--green) }
+  .red{ color:var(--red) }
   .sub{ color:var(--sub) }
 
   .btns{ margin-top:14px; display:flex; gap:8px; flex-wrap:wrap }
@@ -73,7 +74,7 @@
     <button id="again">Run again</button>
     <button id="share">Share</button>
   </div>
-  <div class="sub" style="margin-top:10px">Tip: add <code>?v=8</code> to URL to bust cache.</div>
+  <div class="sub" style="margin-top:10px">Tip: add <code>?v=9</code> to URL to bust cache.</div>
 </div>
 
 <script>
@@ -111,37 +112,39 @@
     const msg=document.createElement('div'); msg.className='yellow'; msg.textContent='🐱 Spinning up market data...';
     const cat=document.createElement('pre'); cat.className='cat spin'; cat.textContent=catArt;
     wrap.appendChild(msg); wrap.appendChild(cat); screen.appendChild(wrap);
-    await sleep(1400); clearScreen();
+    await sleep(1200); clearScreen();
   }
 
-  // helper functions
+  // helpers
   const rndInt=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
-  const rndBeta=()=> (rndInt(16,19)/10).toFixed(2); // always 1.6–1.9
-  const rndHyrox=()=> rndInt(86,100); // always 86–100
+  const rndBeta=()=> (rndInt(16,19)/10).toFixed(2); // 1.6–1.9
+  const rndHyrox=()=> rndInt(86,100);               // 86–100
 
   function sparkline(){
     const bars=['▁','▂','▃','▄','▅','▆','▇']; let out='';
     for(let i=0;i<20;i++) out+=bars[(Math.random()*bars.length)|0];
-    return out+'  📈';
+    return out+'  ⚠️';
   }
 
   function report(){
-    const beta=rndBeta(), roi=rndInt(120,420), hy=rndHyrox();
+    const beta=rndBeta();
+    const replyProb=rndInt(20,65);           // cooler outlook
+    const hy=rndHyrox();
     const notes=[
-      'Premium waived for clever banter.',
       'Policy lapse risk rises with poor communication.',
+      'Premium waived for clever banter (pending response).',
       'Premium discount applied for admission of blushing.',
-      'Policyholder owes one coffee date for compliance.'
+      'Compliance flag: response time trending long.'
     ];
     const uw=notes[(Math.random()*notes.length)|0];
 
     const table=document.createElement('table'); table.className='report';
     [
       ['Role',              `AVP, Finance — ${co}`],
-      ['Analyst Rating',    'STRONG BUY  ❤️'],
+      ['Analyst Rating',    'HOLD — under review'],
       ['Chemistry Beta',    beta],
-      ['Sentiment',         'Ultra Bullish'],
-      ['Projected ROI',     `${roi}% smiles next quarter`],
+      ['Sentiment',         'Cautiously bearish'],
+      ['Reply Probability', `${replyProb}% this week`],
       ['HYROX Index',       `${hy}/100 — built for endurance`],
       ['Underwriting Note', uw],
       ['Insider Tip',       'Run due diligence: coffee with me.']
@@ -153,35 +156,34 @@
     });
     screen.appendChild(table);
 
-    const pa=document.createElement('div'); pa.className='green';
+    const pa=document.createElement('div'); pa.className='yellow';
     pa.textContent='Price Action:  '+sparkline();
     screen.appendChild(pa);
 
-    const msg=document.createElement('div'); msg.className='yellow';
+    const msg=document.createElement('div'); msg.className='red';
     msg.style.marginTop='8px';
-    msg.textContent=`✨ ${name}, don't keep me waiting — I'm free next week. ✨`;
+    msg.textContent=`Note: response time trending bearish — upgrade recommended.`;
     screen.appendChild(msg);
   }
 
-  // ticker with proper padding
+  // ticker (spaced cells, cooler tone)
   function tickerCols(){
     const w=innerWidth;
     if(w<380) return 4; if(w<430) return 5; if(w<520) return 6; return 7;
   }
-
   async function ticker(){
     const cols=tickerCols();
     const cellW=9;
-    const tokens=['$HOT','BUY','$WALT','$LUV','$DATE','$COFFEE','$ROI↑','$BETA1.6','$QTRWIN'];
-    const emojiPool=['','🔥 ','💸 '];
-    for(let i=0;i<26;i++){
+    const tokens=['$HOT','HOLD','$AFK','$LATE','$DATE','$COFFEE','$ROI?','$BETA1.8','$QTR?'];
+    const emojiPool=['','⏳ ','⚠️ ','🥶 '];
+    for(let i=0;i<24;i++){
       let rowTxt='';
       for(let j=0;j<cols;j++){
-        const token=tokens[Math.floor(Math.random()*tokens.length)] || '$HOT';
+        const token=tokens[Math.floor(Math.random()*tokens.length)] || 'HOLD';
         const emo=emojiPool[Math.floor(Math.random()*emojiPool.length)];
         rowTxt+=(emo+token).padEnd(cellW,' ')+' ';
       }
-      const d=document.createElement('div'); d.className='green';
+      const d=document.createElement('div'); d.className='yellow';
       d.textContent=rowTxt;
       screen.appendChild(d);
       await sleep(70);
@@ -190,6 +192,7 @@
 
   async function runOnce(){ header(); await showCats(); report(); await ticker(); }
 
+  // shake + rerun
   again.addEventListener('click', async ()=>{
     term.classList.remove('shake'); void term.offsetWidth; term.classList.add('shake');
     clearScreen(); await runOnce();
@@ -197,6 +200,7 @@
     window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
   });
 
+  // share
   share.addEventListener('click', async ()=>{
     const url=new URL(location.href);
     url.searchParams.set('n',name); url.searchParams.set('co',co);
