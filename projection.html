@@ -79,27 +79,21 @@
     <button id="share">Share</button>
   </div>
   <div class="sub" style="margin-top:10px">
-    Tip: add <code>?v=20</code> to bust cache. Test with <code>?phase=bullish|cautious|warn1|warn2|final</code>. Use <code>?reset=1</code> to reset first-visit + timeline.
+    Tip: add <code>?v=21</code> to bust cache. Test with <code>?phase=bullish|cautious|warn1|warn2|final</code>. Use <code>?reset=1</code> to reset first-visit + timeline.
   </div>
 </div>
 
 <script>
 (() => {
-  // ---------- TUNABLE SPEED CONSTANTS ----------
-  const HOURS_WARN1 = 4;   // after 4h → Warn 1
-  const HOURS_WARN2 = 12;  // after 12h → Warn 2
-  const HOURS_FINAL = 24;  // after 24h → Final ("tut tut" — owes you)
-  // --------------------------------------------
+  const HOURS_WARN1 = 4, HOURS_WARN2 = 12, HOURS_FINAL = 24;
 
-  // Personalization from query
   const defaults={n:"Walter",co:"Life Insurance Co."};
   const qs=new URLSearchParams(location.search);
   const name=qs.get('n')||defaults.n;
   const co=qs.get('co')||defaults.co;
 
-  // Visit memory + first-seen timestamp
-  const VISIT_KEY='pt_visitCount_v2';
-  const FIRST_SEEN_KEY='pt_firstSeen_v2';
+  const VISIT_KEY='pt_visitCount_v3';
+  const FIRST_SEEN_KEY='pt_firstSeen_v3';
 
   if(qs.get('reset')==='1'){
     try{ localStorage.removeItem(VISIT_KEY); localStorage.removeItem(FIRST_SEEN_KEY); }catch(e){}
@@ -116,9 +110,8 @@
     firstSeen = Date.now();
     try{ localStorage.setItem(FIRST_SEEN_KEY, String(firstSeen)); }catch(e){}
   }
-  const elapsedHours = (Date.now() - firstSeen) / 36e5; // ms → hours
+  const elapsedHours = (Date.now() - firstSeen) / 36e5;
 
-  // DOM
   const term=document.getElementById('term');
   const title=document.getElementById('title');
   const sep=document.getElementById('sep');
@@ -137,7 +130,6 @@
   }
   function clearScreen(){ screen.innerHTML=''; }
 
-  // Spinny cat
   const catArt=` /\\_/\\  \n( o.o ) \n > ^ < `;
   async function showCats(){
     clearScreen();
@@ -149,12 +141,10 @@
     await sleep(900); clearScreen();
   }
 
-  // Helpers
   const rndInt=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
-  const rndBeta=()=> (rndInt(16,19)/10).toFixed(2); // 1.6–1.9
-  const rndHyrox=()=> rndInt(86,100);               // 86–100
+  const rndBeta=()=> (rndInt(16,19)/10).toFixed(2);
+  const rndHyrox=()=> rndInt(86,100);
 
-  // Phase logic (override or elapsed-time ladder)
   function getPhase(){
     const override=qs.get('phase'); if(override) return override;
     if(elapsedHours >= HOURS_FINAL) return 'final';
@@ -163,7 +153,6 @@
     return isFirstVisit ? 'bullish' : 'cautious';
   }
 
-  // Report builder
   function report(){
     const phase=getPhase();
     const beta=rndBeta(), hy=rndHyrox();
@@ -212,7 +201,7 @@
     }
     else if(phase==='warn2'){
       rating='SELL — review pending';
-      sentiment='Playfully punitive';
+      sentiment='Playfully firm';
       replyProb=rndInt(10,40);
       uwNotes=[
         'Liquidity low — demonstrate effort to restore credit.',
@@ -224,9 +213,9 @@
       endMsgClass='red'; endMsgText='Tut-tut. You’re on thin ice — impress me to earn it back.';
       addRows.push(['Disappointment Indicator','Very High']);
     }
-    else { // final (soft-dom brat close, playful not punitive)
+    else {
       rating = 'SELL — rally opportunity';
-      sentiment = 'Bratty but intrigued';
+      sentiment = 'Intrigued but firm';
       replyProb = rndInt(5, 30);
       uwNotes = [
         'Position not closed — pending creative restitution.',
@@ -239,7 +228,7 @@
       endMsgClass = 'red';
       endMsgText = `Tut, tut. It's been a full market day — now you officially owe me. 
                     How you make it up to me is entirely up to you.`;
-      addRows.push(['Dominance Index','Critical — Playfully Awaiting Compliance']);
+      addRows.push(['Dominance Index','Critical — Awaiting Compliance']);
       addRows.push(['Disappointment Indicator','Critical']);
     }
 
@@ -281,7 +270,6 @@
     return out+'  '+(icon||'⚠️');
   }
 
-  // Ticker
   async function ticker(){
     const phase=getPhase();
     const cols=(innerWidth<380)?4:(innerWidth<430)?5:(innerWidth<520)?6:7;
@@ -335,10 +323,7 @@
     else{ prompt('Copy link:', url.toString()); }
   });
 
-  // header + run
-  const d=new Date();
-  const ttl=`Projections Terminal — ${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  title.textContent=ttl; sep.textContent='='.repeat(ttl.length); subj.textContent=`Subject: ${name}`;
+  header();
   runOnce();
 })();
 </script>
